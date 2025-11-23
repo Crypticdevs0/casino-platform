@@ -1,0 +1,12 @@
+[DEBUG] Writing to temp file: /home/user/.claude.json.tmp.462.1763877818473
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 106 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/user/.claude.json.tmp.462.1763877818473 to /home/user/.claude.json
+[DEBUG] File /home/user/.claude.json written atomically
+[DEBUG] Writing to temp file: /home/user/.claude.json.tmp.462.1763877818484
+[DEBUG] Preserving file permissions: 100644
+[DEBUG] Temp file written successfully, size: 143 bytes
+[DEBUG] Applied original permissions to temp file
+[DEBUG] Renaming /home/user/.claude.json.tmp.462.1763877818484 to /home/user/.claude.json
+[DEBUG] File /home/user/.claude.json written atomically
