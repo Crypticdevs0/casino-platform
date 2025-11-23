@@ -11,13 +11,16 @@ import { AutoBet, type AutoBetConfig } from '@/components/AutoBet';
 import { FairnessVerification } from '@/components/FairnessVerification';
 import { DepositDialog } from '@/components/DepositDialog';
 import { SoundToggle } from '@/components/SoundToggle';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { RecentResults } from '@/components/RecentResults';
+import { PlayerStats } from '@/components/PlayerStats';
 import { Leaderboard } from '@/components/Leaderboard';
 import { Achievements } from '@/components/Achievements';
+import { Missions } from '@/components/Missions';
 import { useWallet, useWalletBalances, useUserWallets, useDeposit } from '@/hooks/useWallet';
 import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification } from '@/hooks/useGame';
 import { createConfetti } from '@/lib/confetti';
-import { Dice1, History, Shield, BarChart3, Zap, Cherry, Flame, Circle as CircleIcon, Target, Trophy, Award } from 'lucide-react';
+import { Dice1, History, Shield, BarChart3, Zap, Cherry, Flame, Circle as CircleIcon, Target, Trophy, Award, Star } from 'lucide-react';
 
 export const Route = createFileRoute("/")({
 	component: App,
@@ -264,7 +267,10 @@ function App() {
 					</div>
 					<p className="text-muted-foreground flex justify-between items-center">
 						<span>Transparent, verifiable, blockchain-powered gaming with multiple games</span>
-						<SoundToggle />
+						<div className="flex items-center gap-2">
+							<SoundToggle />
+							<ThemeSwitcher />
+						</div>
 					</p>
 				</motion.div>
 
@@ -400,6 +406,10 @@ function App() {
 												<Award className="w-4 h-4 mr-1" />
 												<span className="hidden sm:inline">Achievements</span>
 											</TabsTrigger>
+											<TabsTrigger value="missions" className="text-xs">
+												<Star className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Missions</span>
+											</TabsTrigger>
 										</TabsList>
 
 										<Suspense fallback={<div>Loading...</div>}>
@@ -505,6 +515,10 @@ function App() {
 										<TabsContent value="achievements">
 											<Achievements />
 										</TabsContent>
+
+										<TabsContent value="missions">
+											<Missions />
+										</TabsContent>
 									</Tabs>
 								</div>
 								<div className="space-y-6">
@@ -514,6 +528,7 @@ function App() {
 											multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1'),
 										}))}
 									/>
+									<PlayerStats />
 								</div>
 							</motion.div>
 						</motion.div>
