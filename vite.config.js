@@ -10,8 +10,19 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { createHtmlPlugin } from 'vite-plugin-html';
 
 // https://vitejs.dev/config/
+// Production optimizations
+const productionPlugins = [
+  visualizer({
+    open: false,
+    filename: 'dist/stats.html',
+    gzipSize: true,
+    brotliSize: true,
+    template: 'treemap',
+  }),
+];
+
 export default defineConfig(({ mode }) => {
-  // Load env variables based on mode (dev/prod)
+  const isProduction = mode === 'production';
   const env = loadEnv(mode, process.cwd(), '');
   
   return {
@@ -23,7 +34,9 @@ export default defineConfig(({ mode }) => {
     plugins: [
       ...creaoPlugins(),
       TanStackRouterVite({
-        autoCodeSplitting: false,
+        autoCodeSplitting: true,
+        routeFileIgnorePrefix: '_',
+        routes: 'src/pages',
       }),
       viteReact({
         jsxRuntime: "automatic",
@@ -50,12 +63,7 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
-      mode === 'analyze' && visualizer({
-        open: true,
-        filename: 'dist/stats.html',
-        gzipSize: true,
-        brotliSize: true,
-      }),
+      isProduction && productionPlugins,
     ].filter(Boolean),
     test: {
       globals: true,
@@ -102,14 +110,17 @@ export default defineConfig(({ mode }) => {
       },
     },
     build: {
+      outDir: 'dist',
+      emptyOutDir: true,
       sourcemap: true,
-      chunkSizeWarningLimit: 1000,
+      minify: 'terser',
+      cssMinify: true,
       rollupOptions: {
         output: {
           manualChunks: {
             react: ['react', 'react-dom', 'react-router-dom'],
-            vendor: ['lodash', 'axios', 'zod', 'zustand'],
             ui: ['@radix-ui/react-*', 'class-variance-authority', 'tailwind-merge'],
+            vendor: ['lodash', 'date-fns', 'zod'],
           },
         },
       },

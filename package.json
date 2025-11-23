@@ -98,6 +98,8 @@
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
     "@typescript/native-preview": "^7.0.0-dev.20251027.1",
+    "@vercel/node": "^5.5.9",
+    "@vercel/static-build": "^2.8.9",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.32.0",
     "eslint-plugin-react": "^7.37.5",
