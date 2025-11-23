@@ -1,28 +1,33 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletConnect } from '@/components/WalletConnect';
 import { BalanceDisplay } from '@/components/BalanceDisplay';
-import { DiceGame } from '@/components/DiceGame';
-import { SlotsGame } from '@/components/SlotsGame';
-import { BalloonGame } from '@/components/BalloonGame';
-import { PlinkoGame } from '@/components/PlinkoGame';
-import { RouletteGame } from '@/components/RouletteGame';
 import { GameHistory } from '@/components/GameHistory';
 import { GameStats } from '@/components/GameStats';
 import { AutoBet, type AutoBetConfig } from '@/components/AutoBet';
 import { FairnessVerification } from '@/components/FairnessVerification';
 import { DepositDialog } from '@/components/DepositDialog';
+import { SoundToggle } from '@/components/SoundToggle';
+import { RecentResults } from '@/components/RecentResults';
+import { Leaderboard } from '@/components/Leaderboard';
+import { Achievements } from '@/components/Achievements';
 import { useWallet, useWalletBalances, useUserWallets, useDeposit } from '@/hooks/useWallet';
 import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification } from '@/hooks/useGame';
 import { createConfetti } from '@/lib/confetti';
-import { Dice1, History, Shield, BarChart3, Zap, Cherry, Flame, Circle as CircleIcon, Target } from 'lucide-react';
+import { Dice1, History, Shield, BarChart3, Zap, Cherry, Flame, Circle as CircleIcon, Target, Trophy, Award } from 'lucide-react';
 
 export const Route = createFileRoute("/")({
 	component: App,
 });
+
+const DiceGame = lazy(() => import('@/components/DiceGame').then(m => ({ default: m.DiceGame })));
+const SlotsGame = lazy(() => import('@/components/SlotsGame').then(m => ({ default: m.SlotsGame })));
+const BalloonGame = lazy(() => import('@/components/BalloonGame').then(m => ({ default: m.BalloonGame })));
+const PlinkoGame = lazy(() => import('@/components/PlinkoGame').then(m => ({ default: m.PlinkoGame })));
+const RouletteGame = lazy(() => import('@/components/RouletteGame').then(m => ({ default: m.RouletteGame })));
 
 function App() {
 	const { connectedAddress, currentUser, isConnected, connectWallet, disconnectWallet } = useWallet();
@@ -257,8 +262,9 @@ function App() {
 							Provably Fair Casino
 						</h1>
 					</div>
-					<p className="text-muted-foreground">
-						Transparent, verifiable, blockchain-powered gaming with multiple games
+					<p className="text-muted-foreground flex justify-between items-center">
+						<span>Transparent, verifiable, blockchain-powered gaming with multiple games</span>
+						<SoundToggle />
 					</p>
 				</motion.div>
 
@@ -342,144 +348,173 @@ function App() {
 
 							{/* Main Content */}
 							<motion.div
+								className="grid grid-cols-1 lg:grid-cols-3 gap-6"
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.4, delay: 0.3 }}
 							>
-								<Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-									<TabsList className="grid w-full grid-cols-9 gap-1">
-								<TabsTrigger value="dice" className="text-xs">
-									<Dice1 className="w-4 h-4 mr-1" />
-									Dice
-								</TabsTrigger>
-								<TabsTrigger value="slots" className="text-xs">
-									<Cherry className="w-4 h-4 mr-1" />
-									Slots
-								</TabsTrigger>
-								<TabsTrigger value="balloon" className="text-xs">
-									<Flame className="w-4 h-4 mr-1" />
-									Balloon
-								</TabsTrigger>
-								<TabsTrigger value="plinko" className="text-xs">
-									<CircleIcon className="w-4 h-4 mr-1" />
-									Plinko
-								</TabsTrigger>
-								<TabsTrigger value="roulette" className="text-xs">
-									<Target className="w-4 h-4 mr-1" />
-									Roulette
-								</TabsTrigger>
-								<TabsTrigger value="auto" className="text-xs">
-									<Zap className="w-4 h-4 mr-1" />
-									Auto
-								</TabsTrigger>
-								<TabsTrigger value="stats" className="text-xs">
-									<BarChart3 className="w-4 h-4 mr-1" />
-									Stats
-								</TabsTrigger>
-								<TabsTrigger value="history" className="text-xs">
-									<History className="w-4 h-4 mr-1" />
-									History
-								</TabsTrigger>
-								<TabsTrigger value="verify" className="text-xs">
-									<Shield className="w-4 h-4 mr-1" />
-									Verify
-								</TabsTrigger>
-							</TabsList>
+								<div className="lg:col-span-2">
+									<Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+										<TabsList className="grid w-full grid-cols-3 sm:grid-cols-9 gap-1">
+											<TabsTrigger value="dice" className="text-xs">
+												<Dice1 className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Dice</span>
+											</TabsTrigger>
+											<TabsTrigger value="slots" className="text-xs">
+												<Cherry className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Slots</span>
+											</TabsTrigger>
+											<TabsTrigger value="balloon" className="text-xs">
+												<Flame className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Balloon</span>
+											</TabsTrigger>
+											<TabsTrigger value="plinko" className="text-xs">
+												<CircleIcon className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Plinko</span>
+											</TabsTrigger>
+											<TabsTrigger value="roulette" className="text-xs">
+												<Target className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Roulette</span>
+											</TabsTrigger>
+											<TabsTrigger value="auto" className="text-xs">
+												<Zap className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Auto</span>
+											</TabsTrigger>
+											<TabsTrigger value="stats" className="text-xs">
+												<BarChart3 className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Stats</span>
+											</TabsTrigger>
+											<TabsTrigger value="history" className="text-xs">
+												<History className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">History</span>
+											</TabsTrigger>
+											<TabsTrigger value="verify" className="text-xs">
+												<Shield className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Verify</span>
+											</TabsTrigger>
+											<TabsTrigger value="leaderboard" className="text-xs">
+												<Trophy className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Leaderboard</span>
+											</TabsTrigger>
+											<TabsTrigger value="achievements" className="text-xs">
+												<Award className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Achievements</span>
+											</TabsTrigger>
+										</TabsList>
 
-							<TabsContent value="dice">
-								<DiceGame
-									onPlaceBet={handlePlaceBet}
-									isPlaying={placeBetMutation.isPending || isAutoBetting}
-									currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-									lastOutcome={lastSession?.outcome}
-									lastWon={lastSession?.status === 2}
-								/>
-							</TabsContent>
+										<Suspense fallback={<div>Loading...</div>}>
+											<TabsContent value="dice">
+												<DiceGame
+													onPlaceBet={handlePlaceBet}
+													isPlaying={placeBetMutation.isPending || isAutoBetting}
+													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+													lastOutcome={lastSession?.outcome}
+													lastWon={lastSession?.status === 2}
+												/>
+											</TabsContent>
 
-							<TabsContent value="slots">
-								<SlotsGame
-									onPlaceBet={handlePlaceBet}
-									isPlaying={placeBetMutation.isPending || isAutoBetting}
-									currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-									lastOutcome={lastSession?.outcome}
-									lastWon={lastSession?.status === 2}
-								/>
-							</TabsContent>
+											<TabsContent value="slots">
+												<SlotsGame
+													onPlaceBet={handlePlaceBet}
+													isPlaying={placeBetMutation.isPending || isAutoBetting}
+													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+													lastOutcome={lastSession?.outcome}
+													lastWon={lastSession?.status === 2}
+												/>
+											</TabsContent>
 
-							<TabsContent value="balloon">
-								<BalloonGame
-									onPlaceBet={handlePlaceBet}
-									isPlaying={placeBetMutation.isPending || isAutoBetting}
-									currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-									lastOutcome={lastSession?.outcome}
-									lastWon={lastSession?.status === 2}
-								/>
-							</TabsContent>
+											<TabsContent value="balloon">
+												<BalloonGame
+													onPlaceBet={handlePlaceBet}
+													isPlaying={placeBetMutation.isPending || isAutoBetting}
+													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+													lastOutcome={lastSession?.outcome}
+													lastWon={lastSession?.status === 2}
+												/>
+											</TabsContent>
 
-							<TabsContent value="plinko">
-								<PlinkoGame
-									onPlaceBet={handlePlaceBet}
-									isPlaying={placeBetMutation.isPending || isAutoBetting}
-									currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-									lastOutcome={lastSession?.outcome}
-									lastWon={lastSession?.status === 2}
-								/>
-							</TabsContent>
+											<TabsContent value="plinko">
+												<PlinkoGame
+													onPlaceBet={handlePlaceBet}
+													isPlaying={placeBetMutation.isPending || isAutoBetting}
+													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+													lastOutcome={lastSession?.outcome}
+													lastWon={lastSession?.status === 2}
+												/>
+											</TabsContent>
 
-							<TabsContent value="roulette">
-								<RouletteGame
-									onPlaceBet={handlePlaceBet}
-									isPlaying={placeBetMutation.isPending || isAutoBetting}
-									currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-									lastOutcome={lastSession?.outcome}
-									lastWon={lastSession?.status === 2}
-								/>
-							</TabsContent>
+											<TabsContent value="roulette">
+												<RouletteGame
+													onPlaceBet={handlePlaceBet}
+													isPlaying={placeBetMutation.isPending || isAutoBetting}
+													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+													lastOutcome={lastSession?.outcome}
+													lastWon={lastSession?.status === 2}
+												/>
+											</TabsContent>
+										</Suspense>
 
-							<TabsContent value="auto">
-								<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-									<DiceGame
-										onPlaceBet={handlePlaceBet}
-										isPlaying={placeBetMutation.isPending || isAutoBetting}
-										currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-										lastOutcome={lastSession?.outcome}
-										lastWon={lastSession?.status === 2}
-									/>
-									<AutoBet
-										onStart={handleStartAutoBet}
-										onStop={handleStopAutoBet}
-										isRunning={isAutoBetting}
-										currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-										currentBetCount={autoBetCount}
-										totalBets={autoBetConfig?.numberOfBets || 0}
+										<TabsContent value="auto">
+											<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+												<DiceGame
+													onPlaceBet={handlePlaceBet}
+													isPlaying={placeBetMutation.isPending || isAutoBetting}
+													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+													lastOutcome={lastSession?.outcome}
+													lastWon={lastSession?.status === 2}
+												/>
+												<AutoBet
+													onStart={handleStartAutoBet}
+													onStop={handleStopAutoBet}
+													isRunning={isAutoBetting}
+													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+													currentBetCount={autoBetCount}
+													totalBets={autoBetConfig?.numberOfBets || 0}
+												/>
+											</div>
+										</TabsContent>
+
+										<TabsContent value="stats">
+											<GameStats
+												sessions={gameSessions}
+												currency={selectedCurrency}
+											/>
+										</TabsContent>
+
+										<TabsContent value="history">
+											<GameHistory
+												sessions={gameSessions}
+												onVerify={handleVerifySession}
+											/>
+										</TabsContent>
+
+										<TabsContent value="verify">
+											<FairnessVerification
+												sessionId={selectedSessionId || undefined}
+												serverSeed={verificationData?.serverSeed.seed_value}
+												clientSeed={verificationData?.session.client_seed}
+												nonce={verificationData?.session.nonce}
+												expectedOutcome={verificationData?.session.outcome || undefined}
+											/>
+										</TabsContent>
+
+										<TabsContent value="leaderboard">
+											<Leaderboard />
+										</TabsContent>
+
+										<TabsContent value="achievements">
+											<Achievements />
+										</TabsContent>
+									</Tabs>
+								</div>
+								<div className="space-y-6">
+									<RecentResults
+										results={gameSessions.map(s => ({
+											won: s.status === 2,
+											multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1'),
+										}))}
 									/>
 								</div>
-							</TabsContent>
-
-							<TabsContent value="stats">
-								<GameStats
-									sessions={gameSessions}
-									currency={selectedCurrency}
-								/>
-							</TabsContent>
-
-							<TabsContent value="history">
-								<GameHistory
-									sessions={gameSessions}
-									onVerify={handleVerifySession}
-								/>
-							</TabsContent>
-
-							<TabsContent value="verify">
-								<FairnessVerification
-									sessionId={selectedSessionId || undefined}
-									serverSeed={verificationData?.serverSeed.seed_value}
-									clientSeed={verificationData?.session.client_seed}
-									nonce={verificationData?.session.nonce}
-									expectedOutcome={verificationData?.session.outcome || undefined}
-								/>
-							</TabsContent>
-								</Tabs>
 							</motion.div>
 						</motion.div>
 					)}

@@ -102,9 +102,9 @@ export function DiceGame({
   return (
     <div className="space-y-6">
       {/* Game Visualization */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-card/95 border-2">
+      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-green-900/20 to-blue-900/20 border-2">
         {/* Glassmorphism overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-blue-500/5 pointer-events-none" />
 
         {/* Particle Effect */}
         {lastWon !== null && lastWon !== undefined && (

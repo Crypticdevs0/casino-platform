@@ -1,70 +1,48 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, TrendingDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface Result {
-  id: string;
   won: boolean;
   multiplier: number;
-  timestamp: number;
 }
 
 interface RecentResultsProps {
   results: Result[];
-  maxDisplay?: number;
 }
 
-export function RecentResults({ results, maxDisplay = 10 }: RecentResultsProps) {
-  const displayResults = results.slice(0, maxDisplay);
-  const wins = results.filter(r => r.won).length;
-  const losses = results.length - wins;
+export function RecentResults({ results }: RecentResultsProps) {
+  const wins = results.filter((r) => r.won).length;
   const winRate = results.length > 0 ? (wins / results.length) * 100 : 0;
 
   return (
-    <Card className="p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Recent Results</h3>
-        <div className="flex items-center gap-3 text-xs">
-          <div className="flex items-center gap-1 text-green-500">
-            <TrendingUp className="w-3 h-3" />
-            <span>{wins}W</span>
-          </div>
-          <div className="flex items-center gap-1 text-red-500">
-            <TrendingDown className="w-3 h-3" />
-            <span>{losses}L</span>
-          </div>
-          <div className="text-muted-foreground">
-            {winRate.toFixed(0)}%
-          </div>
+    <Card className="p-4">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-semibold">Recent Results</h3>
+        <div className="text-sm text-muted-foreground">
+          {wins}W / {results.length - wins}L ({winRate.toFixed(0)}%)
         </div>
       </div>
-
-      <div className="flex gap-1 flex-wrap">
-        <AnimatePresence mode="popLayout">
-          {displayResults.map((result) => (
+      <div className="flex gap-1 overflow-x-auto pb-2">
+        <AnimatePresence>
+          {results.slice(0, 10).map((result, i) => (
             <motion.div
-              key={result.id}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              className={`w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold ${
-                result.won
-                  ? 'bg-green-500/20 text-green-500 border border-green-500/50'
-                  : 'bg-red-500/20 text-red-500 border border-red-500/50'
-              }`}
-              title={`${result.won ? 'Win' : 'Loss'} - ${result.multiplier.toFixed(2)}x`}
+              key={i}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              layout
             >
-              {result.multiplier.toFixed(1)}
+              <div
+                className={`w-12 h-12 rounded-md flex items-center justify-center font-bold text-xs ${
+                  result.won ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                }`}
+              >
+                {result.multiplier.toFixed(2)}x
+              </div>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
-
-      {results.length === 0 && (
-        <p className="text-xs text-muted-foreground text-center py-4">
-          No games played yet
-        </p>
-      )}
     </Card>
   );
 }

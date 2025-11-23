@@ -1,12 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Cherry, Sparkles, Coins, Flame } from 'lucide-react';
+import { Cherry, Sparkles, Coins, Flame, Keyboard } from 'lucide-react';
 import { ParticleExplosion } from '@/components/ParticleExplosion';
 import { CountingNumber, PulseNumber } from '@/components/CountingNumber';
+import { QuickBetControls } from '@/components/QuickBetControls';
+import { useSound } from '@/hooks/useSound';
+import { useHaptic } from '@/hooks/useHaptic';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface SlotsGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
@@ -151,8 +155,21 @@ export function SlotsGame({
   const [winMultiplier, setWinMultiplier] = useState(0);
   const previousOutcome = useRef<number | null | undefined>(lastOutcome);
 
+  const sound = useSound();
+  const haptic = useHaptic();
+  const prefersReducedMotion = useReducedMotion();
+
   useEffect(() => {
     if (lastOutcome !== null && lastOutcome !== undefined && lastOutcome !== previousOutcome.current) {
+      // Play sounds and haptic feedback
+      if (lastWon) {
+        sound.playWin();
+        haptic.success();
+      } else {
+        sound.playLose();
+        haptic.error();
+      }
+
       // Calculate reel symbols from outcome
       const symbols = [
         getSymbolFromOutcome(lastOutcome, 0),
@@ -171,7 +188,7 @@ export function SlotsGame({
     }
   }, [lastOutcome]);
 
-  const handlePlaceBet = () => {
+  const handlePlaceBet = useCallback(() => {
     if (parseFloat(betAmount) <= 0) {
       alert('Please enter a valid bet amount');
       return;
@@ -182,19 +199,36 @@ export function SlotsGame({
       return;
     }
 
+    sound.playSpin();
+    haptic.light();
     setShowResult(false);
     // Use 50 as default target for slots (50% base win chance)
     onPlaceBet(betAmount, 50);
-  };
+  }, [betAmount, currentBalance, sound, haptic, onPlaceBet]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isPlaying) return;
+
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handlePlaceBet();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isPlaying, betAmount, handlePlaceBet]);
 
   const potentialWin = parseFloat(betAmount) * 10; // Max multiplier for 777
 
   return (
     <div className="space-y-6">
       {/* Slots Machine */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-b from-yellow-900/20 to-purple-900/20 border-2 border-yellow-500/30">
+      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-red-900/20 to-orange-900/20 border-2">
         {/* Animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-orange-500/5 pointer-events-none">
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent"
             animate={{ x: ['-100%', '200%'] }}
@@ -300,7 +334,7 @@ export function SlotsGame({
           transition={{ delay: 0.1 }}
         >
           {/* Bet Amount */}
-          <motion.div whileHover={{ scale: 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+          <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
             <Label htmlFor="slotsBetAmount">Bet Amount</Label>
             <Input
               id="slotsBetAmount"
@@ -313,31 +347,40 @@ export function SlotsGame({
               className="mt-1.5"
             />
             <div className="flex gap-2 mt-2">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount((parseFloat(betAmount) / 2).toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   ½
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount((parseFloat(betAmount) * 2).toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   2×
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount(currentBalance.toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount(currentBalance.toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   Max
@@ -345,6 +388,17 @@ export function SlotsGame({
               </motion.div>
             </div>
           </motion.div>
+
+          {/* Quick Bet Controls */}
+          <QuickBetControls
+            betAmount={betAmount}
+            onSetBetAmount={(amount) => {
+              sound.playClick();
+              setBetAmount(amount);
+            }}
+            disabled={isPlaying}
+            currentBalance={currentBalance}
+          />
 
           {/* Stats */}
           <motion.div
@@ -373,15 +427,21 @@ export function SlotsGame({
             </div>
           </motion.div>
 
+          {/* Keyboard Shortcuts Hint */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Keyboard className="w-3 h-3" />
+            <span>Enter to spin</span>
+          </div>
+
           {/* Spin Button */}
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.02 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}>
             <Button
               className="w-full relative overflow-hidden bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold text-lg"
               size="lg"
               onClick={handlePlaceBet}
               disabled={isPlaying}
             >
-              {isPlaying && (
+              {isPlaying && !prefersReducedMotion && (
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
                   animate={{ x: ['-100%', '200%'] }}
@@ -402,7 +462,7 @@ export function SlotsGame({
                 ) : (
                   <>
                     <Cherry className="w-5 h-5" />
-                    SPIN TO WIN
+                    SPIN TO WIN (Enter)
                   </>
                 )}
               </span>

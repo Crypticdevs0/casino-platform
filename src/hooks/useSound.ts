@@ -1,96 +1,93 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-export interface SoundEffects {
-  playWin: () => void;
-  playLose: () => void;
-  playSpin: () => void;
-  playClick: () => void;
-  playTick: () => void;
-  isMuted: boolean;
-  toggleMute: () => void;
-}
+// Web Audio API context
+let audioContext: AudioContext | null = null;
+const getAudioContext = () => {
+  if (typeof window !== 'undefined' && !audioContext) {
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  }
+  return audioContext;
+};
 
-export function useSound(): SoundEffects {
-  const [isMuted, setIsMuted] = useState(() => {
-    const saved = localStorage.getItem('soundMuted');
-    return saved === 'true';
-  });
+// Sound generation function
+const playTone = (
+  frequency: number,
+  duration: number,
+  type: OscillatorType = 'sine',
+  volume = 0.5,
+) => {
+  const context = getAudioContext();
+  if (!context) return;
 
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(frequency, context.currentTime);
+
+  gainNode.gain.setValueAtTime(volume, context.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + duration);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+
+  oscillator.start(context.currentTime);
+  oscillator.stop(context.currentTime + duration);
+};
+
+export const useSound = () => {
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const savedMuteState = localStorage.getItem('soundMuted');
+    if (savedMuteState) {
+      setIsMuted(JSON.parse(savedMuteState));
     }
   }, []);
 
-  const playTone = (frequency: number, duration: number, type: OscillatorType = 'sine', volume: number = 0.3) => {
-    if (isMuted || !audioContextRef.current) return;
+  const toggleMute = useCallback(() => {
+    const newMuteState = !isMuted;
+    setIsMuted(newMuteState);
+    localStorage.setItem('soundMuted', JSON.stringify(newMuteState));
+  }, [isMuted]);
 
-    const ctx = audioContextRef.current;
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
+  const playSound = useCallback(
+    (soundFunction: () => void) => {
+      if (!isMuted) {
+        soundFunction();
+      }
+    },
+    [isMuted],
+  );
 
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    oscillator.frequency.value = frequency;
-    oscillator.type = type;
-    gainNode.gain.value = volume;
-
-    oscillator.start(ctx.currentTime);
-    oscillator.stop(ctx.currentTime + duration);
-  };
-
-  const playWin = () => {
-    if (isMuted) return;
-    // Winning sound: ascending arpeggio
-    playTone(523.25, 0.15, 'sine', 0.3); // C5
-    setTimeout(() => playTone(659.25, 0.15, 'sine', 0.3), 100); // E5
-    setTimeout(() => playTone(783.99, 0.15, 'sine', 0.3), 200); // G5
-    setTimeout(() => playTone(1046.5, 0.3, 'sine', 0.3), 300); // C6
-  };
-
-  const playLose = () => {
-    if (isMuted) return;
-    // Losing sound: descending tone
-    playTone(392, 0.2, 'sine', 0.2); // G4
-    setTimeout(() => playTone(329.63, 0.3, 'sine', 0.2), 150); // E4
-  };
-
-  const playSpin = () => {
-    if (isMuted) return;
-    // Spinning sound: quick ascending tone
-    playTone(220, 0.1, 'square', 0.15);
-  };
-
-  const playClick = () => {
-    if (isMuted) return;
-    // Click sound: short beep
-    playTone(800, 0.05, 'square', 0.1);
-  };
-
-  const playTick = () => {
-    if (isMuted) return;
-    // Tick sound: very short beep
-    playTone(1200, 0.02, 'square', 0.08);
-  };
-
-  const toggleMute = () => {
-    setIsMuted(prev => {
-      const newValue = !prev;
-      localStorage.setItem('soundMuted', String(newValue));
-      return newValue;
+  const playWin = () =>
+    playSound(() => {
+      // Ascending arpeggio
+      playTone(523.25, 0.1, 'triangle', 0.6); // C5
+      setTimeout(() => playTone(659.25, 0.1, 'triangle', 0.6), 100); // E5
+      setTimeout(() => playTone(783.99, 0.1, 'triangle', 0.6), 200); // G5
+      setTimeout(() => playTone(1046.5, 0.15, 'triangle', 0.7), 300); // C6
     });
-  };
 
-  return {
-    playWin,
-    playLose,
-    playSpin,
-    playClick,
-    playTick,
-    isMuted,
-    toggleMute,
-  };
-}
+  const playLose = () =>
+    playSound(() => {
+      // Descending tones
+      playTone(392.0, 0.15, 'sawtooth', 0.5); // G4
+      setTimeout(() => playTone(329.63, 0.2, 'sawtooth', 0.4), 150); // E4
+    });
+
+  const playSpin = () =>
+    playSound(() => {
+      // Whoosh sound
+      playTone(200, 0.1, 'square', 0.3);
+      setTimeout(() => playTone(800, 0.15, 'square', 0.1), 50);
+    });
+
+  const playClick = () =>
+    playSound(() => {
+      // Simple click
+      playTone(1200, 0.05, 'triangle', 0.3);
+    });
+
+  return { isMuted, toggleMute, playWin, playLose, playSpin, playClick };
+};

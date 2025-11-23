@@ -1,33 +1,34 @@
-import { Volume2, VolumeX } from 'lucide-react';
+import { useSound } from '@/hooks/useSound';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface SoundToggleProps {
-  isMuted: boolean;
-  onToggle: () => void;
-}
+export function SoundToggle() {
+  const { isMuted, toggleMute } = useSound();
 
-export function SoundToggle({ isMuted, onToggle }: SoundToggleProps) {
   return (
-    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={onToggle}
-        className="relative"
-        aria-label={isMuted ? 'Unmute sounds' : 'Mute sounds'}
-      >
+    <Button variant="ghost" size="icon" onClick={toggleMute}>
+      <AnimatePresence mode="wait">
         {isMuted ? (
-          <VolumeX className="w-4 h-4" />
+          <motion.div
+            key="muted"
+            initial={{ scale: 0, rotate: -90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0, rotate: 90 }}
+          >
+            <VolumeX className="w-5 h-5" />
+          </motion.div>
         ) : (
           <motion.div
-            animate={{ scale: [1, 1.2, 1] }}
-            transition={{ duration: 0.3 }}
+            key="unmuted"
+            initial={{ scale: 0, rotate: 90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0, rotate: -90 }}
           >
-            <Volume2 className="w-4 h-4" />
+            <Volume2 className="w-5 h-5" />
           </motion.div>
         )}
-      </Button>
-    </motion.div>
+      </AnimatePresence>
+    </Button>
   );
 }
