@@ -3,6 +3,7 @@ import { FloatingBanner } from "@/components/FloatingBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { ThemeProvider } from "next-themes";
 
 export const Route = createRootRoute({
 	component: Root,
@@ -10,13 +11,15 @@ export const Route = createRootRoute({
 
 function Root() {
 	return (
-		<div className="flex flex-col min-h-screen">
-			<ErrorBoundary tagName="main" className="flex-1">
-				<Outlet />
-			</ErrorBoundary>
-			<Toaster richColors position="top-right" />
-			<TanStackRouterDevtools position="bottom-right" />
-			<FloatingBanner position="bottom-left" />
-		</div>
+		<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+			<div className="flex flex-col min-h-screen">
+				<ErrorBoundary tagName="main" className="flex-1">
+					<Outlet />
+				</ErrorBoundary>
+				<Toaster richColors position="top-right" />
+				<TanStackRouterDevtools position="bottom-right" />
+				<FloatingBanner position="bottom-left" />
+			</div>
+		</ThemeProvider>
 	);
 }
