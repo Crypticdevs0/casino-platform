@@ -15,7 +15,7 @@
     "lint:radix": "grep -l -r '<SelectItem' src | xargs eslint --config config/eslint/eslint.radix.config.js",
     "lint:mcp": "eslint src --config config/eslint/eslint.mcp.config.js",
     "lint:validate": "node config/eslint/validate-configs.js",
-    "prepare": "if [ -f ./bin/setup-githooks.sh ]; then ./bin/setup-githooks.sh; fi"
+    "prepare": "node -e \"if (require('fs').existsSync('./bin/setup-githooks.sh')) { require('child_process').execSync('bash ./bin/setup-githooks.sh') }\""
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
