@@ -573,43 +573,18 @@ function App() {
 											</TabsContent>
 
 										</Suspense>
-										</Tabs>
 
 										<TabsContent value="settings">
-												<SettingsPortal
-													kycLevel={currentUser?.kyc_level}
-													isBanned={currentUser?.is_banned}
-												/>
-											</TabsContent>
-
-										<div className="space-y-6">
-											<LiveActivityFeed sessions={gameSessions} currency={selectedCurrency} />
-											<RecentResults
-												results={gameSessions.map(s => ({
-													won: s.status === 2,
-													multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1'),
-												}))}
+											<SettingsPortal
+												kycLevel={currentUser?.kyc_level}
+												isBanned={currentUser?.is_banned}
 											/>
-											<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
-										</div>
-									</motion.div>
-								</div>
-								<div className="space-y-6">
-									<LiveActivityFeed sessions={gameSessions} currency={selectedCurrency} />
-									<RecentResults
-										results={gameSessions.map(s => ({
-											won: s.status === 2,
-											multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1'),
-										}))}
-									/>
-									<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
-								</div>
-							</motion.div>
-						</motion.div>
-					)}
-				</AnimatePresence>
+										</TabsContent>
+									</Tabs>
 
-				{currentUser && (
+									<div className="space-y-6">
+										<LiveActivityFeed sessions={gameSessions} currency={selectedCurrency} />
+										<RecentResults
 					<KycVerificationDialog
 						open={kycDialogOpen}
 						onOpenChange={setKycDialogOpen}

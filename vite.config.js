@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => {
       ...creaoPlugins(),
       TanStackRouterVite({
         autoCodeSplitting: true,
-        routeFileIgnorePrefix: '_',
+        routeFileIgnorePrefix: 'ignored-',
         routes: 'src/pages',
       }),
       viteReact({
@@ -117,10 +117,19 @@ export default defineConfig(({ mode }) => {
       cssMinify: true,
       rollupOptions: {
         output: {
-          manualChunks: {
-            react: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['@radix-ui/react-*', 'class-variance-authority', 'tailwind-merge'],
-            vendor: ['lodash', 'date-fns', 'zod'],
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                return 'vendor-react';
+              }
+              if (id.includes('@radix-ui') || id.includes('class-variance-authority') || id.includes('tailwind-merge')) {
+                return 'vendor-ui';
+              }
+              if (id.includes('lodash') || id.includes('date-fns') || id.includes('zod')) {
+                return 'vendor-utils';
+              }
+              return 'vendor';
+            }
           },
         },
       },
