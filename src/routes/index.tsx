@@ -27,6 +27,7 @@ import { ArcadePassModal } from '@/components/ArcadePassModal';
 import { WelcomeOfferModal } from '@/components/WelcomeOfferModal';
 import { KycStatusBadge } from '@/components/KycStatusBadge';
 import { KycVerificationDialog } from '@/components/KycVerificationDialog';
+import { NotificationCenter } from '@/components/NotificationCenter';
 import { Button } from '@/components/ui/button';
 import { useWallet, useWalletBalances, useUserWallets, useDeposit } from '@/hooks/useWallet';
 import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification, useUserTransactions } from '@/hooks/useGame';
@@ -298,6 +299,7 @@ function App() {
 								<Shield className="w-4 h-4 mr-2" />
 								Responsible Gaming
 							</Button>
+							<NotificationCenter sessions={gameSessions} currency={selectedCurrency} />
 							<SoundToggle />
 							<ThemeSwitcher />
 						</div>
@@ -570,35 +572,37 @@ function App() {
 												<DailyMissions />
 											</TabsContent>
 
-											<TabsContent value="settings">
+										</Suspense>
+										</Tabs>
+
+										<TabsContent value="settings">
 												<SettingsPortal
 													kycLevel={currentUser?.kyc_level}
 													isBanned={currentUser?.is_banned}
 												/>
 											</TabsContent>
-										</Suspense>
 
 										<div className="space-y-6">
-											<LiveActivityFeed />
+											<LiveActivityFeed sessions={gameSessions} currency={selectedCurrency} />
 											<RecentResults
 												results={gameSessions.map(s => ({
 													won: s.status === 2,
 													multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1'),
 												}))}
 											/>
-											<PlayerStats />
+											<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
 										</div>
 									</motion.div>
 								</div>
 								<div className="space-y-6">
-									<LiveActivityFeed />
+									<LiveActivityFeed sessions={gameSessions} currency={selectedCurrency} />
 									<RecentResults
 										results={gameSessions.map(s => ({
 											won: s.status === 2,
 											multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1'),
 										}))}
 									/>
-									<PlayerStats />
+									<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
 								</div>
 							</motion.div>
 						</motion.div>
