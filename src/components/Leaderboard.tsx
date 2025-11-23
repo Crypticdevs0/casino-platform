@@ -1,38 +1,89 @@
-import { Card } from '@/components/ui/card';
-import { Trophy } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Trophy, TrendingUp, DollarSign } from 'lucide-react';
 
 // Mock data for now
-const leaderboardData = [
-  { rank: 1, user: 'Wallet-abc...def', winnings: 1250.5 },
-  { rank: 2, user: 'Player-xyz', winnings: 1100.2 },
-  { rank: 3, user: 'HighRoller', winnings: 950.8 },
-  { rank: 4, user: 'CryptoKing', winnings: 800.1 },
-  { rank: 5, user: 'LadyLuck', winnings: 750.6 },
-];
+const generateLeaderboard = () => ({
+  highestMultiplier: Array.from({ length: 5 }, (_, i) => ({
+    rank: i + 1,
+    user: `User${Math.floor(Math.random() * 9000) + 1000}`,
+    value: (Math.random() * 1000).toFixed(2),
+  })).sort((a,b) => b.value - a.value),
+  wageredVolume: Array.from({ length: 5 }, (_, i) => ({
+    rank: i + 1,
+    user: `User${Math.floor(Math.random() * 9000) + 1000}`,
+    value: (Math.random() * 100).toFixed(4),
+  })).sort((a,b) => b.value - a.value),
+});
+
+
+const LeaderboardTable = ({ data, unit }) => (
+    <div className="space-y-2">
+      {data.map((player) => (
+        <div
+          key={player.rank}
+          className="flex items-center justify-between p-2 rounded-md bg-muted/50"
+        >
+          <div className="flex items-center gap-4">
+            <span className="font-bold text-lg w-6 text-center">{player.rank}</span>
+            <span className="font-mono text-sm">{player.user}</span>
+          </div>
+          <span className="font-semibold text-primary">
+            {player.value} {unit}
+          </span>
+        </div>
+      ))}
+    </div>
+);
+
 
 export function Leaderboard() {
+  // In a real app, you'd fetch data based on the selected tab.
+  // For now, we'll just generate new data for each to show the concept.
+  const dailyData = generateLeaderboard();
+  const weeklyData = generateLeaderboard();
+  const monthlyData = generateLeaderboard();
+
   return (
-    <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Trophy className="w-6 h-6 text-yellow-500" />
-        <h2 className="text-2xl font-bold">Leaderboard</h2>
-      </div>
-      <div className="space-y-2">
-        {leaderboardData.map((player) => (
-          <div
-            key={player.rank}
-            className="flex items-center justify-between p-2 rounded-md bg-muted/50"
-          >
-            <div className="flex items-center gap-4">
-              <span className="font-bold text-lg">{player.rank}</span>
-              <span>{player.user}</span>
-            </div>
-            <span className="font-semibold text-green-500">
-              {player.winnings.toFixed(4)} ETH
-            </span>
-          </div>
-        ))}
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+            <Trophy className="w-6 h-6 text-yellow-500" />
+            Leaderboards
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="daily">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="daily">Daily</TabsTrigger>
+            <TabsTrigger value="weekly">Weekly</TabsTrigger>
+            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="daily" className="mt-4">
+              <LeaderboardCategory data={dailyData} />
+          </TabsContent>
+          <TabsContent value="weekly" className="mt-4">
+              <LeaderboardCategory data={weeklyData} />
+          </TabsContent>
+          <TabsContent value="monthly" className="mt-4">
+              <LeaderboardCategory data={monthlyData} />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
     </Card>
   );
 }
+
+const LeaderboardCategory = ({ data }) => (
+    <div className="space-y-6">
+        <div>
+            <h3 className="font-semibold mb-2 flex items-center"><TrendingUp className="w-4 h-4 mr-2" />Highest Multiplier</h3>
+            <LeaderboardTable data={data.highestMultiplier} unit="x" />
+        </div>
+        <div>
+            <h3 className="font-semibold mb-2 flex items-center"><DollarSign className="w-4 h-4 mr-2" />Wagered Volume</h3>
+            <LeaderboardTable data={data.wageredVolume} unit="ETH" />
+        </div>
+    </div>
+);

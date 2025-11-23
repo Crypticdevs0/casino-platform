@@ -14,6 +14,8 @@ import { QuickBetControls } from '@/components/QuickBetControls';
 import { useSound } from '@/hooks/useSound';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { CelebrationAnimation } from './CelebrationAnimation';
+import './DiceGame.css';
 
 interface DiceGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
@@ -21,6 +23,7 @@ interface DiceGameProps {
   currentBalance: number;
   lastOutcome?: number | null;
   lastWon?: boolean | null;
+  winAmount?: number;
 }
 
 export function DiceGame({
@@ -29,6 +32,7 @@ export function DiceGame({
   currentBalance,
   lastOutcome,
   lastWon,
+  winAmount,
 }: DiceGameProps) {
   const [betAmount, setBetAmount] = useState('0.001');
   const [target, setTarget] = useState(50);
@@ -44,14 +48,12 @@ export function DiceGame({
   const winChance = target;
   const potentialWin = parseFloat(betAmount) * multiplier;
 
-  // Trigger particle effect when result changes
   useEffect(() => {
     if (lastOutcome !== null && lastOutcome !== undefined && lastOutcome !== previousOutcome.current) {
       setParticleTrigger((prev) => prev + 1);
       setShowResult(true);
       previousOutcome.current = lastOutcome;
 
-      // Play sounds and haptic feedback
       if (lastWon) {
         sound.playWin();
         haptic.success();
@@ -62,11 +64,9 @@ export function DiceGame({
     }
   }, [lastOutcome, lastWon, sound, haptic]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (isPlaying) return;
-
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         handlePlaceBet();
@@ -78,54 +78,48 @@ export function DiceGame({
         setTarget(prev => Math.max(1, prev - 1));
       }
     };
-
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isPlaying, betAmount, target]);
 
   const handlePlaceBet = () => {
-    if (parseFloat(betAmount) <= 0) {
-      alert('Please enter a valid bet amount');
-      return;
-    }
-
-    if (parseFloat(betAmount) > currentBalance) {
-      alert('Insufficient balance');
-      return;
-    }
-
+    onPlaceBet(betAmount, target);
     sound.playSpin();
     haptic.light();
-    onPlaceBet(betAmount, target);
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Game Visualization */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-green-900/20 to-blue-900/20 border-2">
-        {/* Glassmorphism overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+  const BigWinCelebration = () => (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 20 }).map((_, i) => (
+            <motion.div
+                key={i}
+                className="absolute bg-cyan-400 h-2 w-2 rounded-full"
+                initial={{ x: `${Math.random() * 100}%`, y: '110%' }}
+                animate={{ y: '-10%', opacity: [1, 0] }}
+                transition={{ duration: Math.random() * 1 + 0.5, delay: Math.random() * 0.5, ease: "easeOut" }}
+            />
+        ))}
+    </div>
+);
 
-        {/* Particle Effect */}
+
+  return (
+    <div className="space-y-6 dice-game-cyberpunk">
+      {/* Game Visualization */}
+      <Card className="relative p-8 overflow-hidden bg-black/50 border-cyan-400/20 border-2 tech-grid-background">
+        <CelebrationAnimation trigger={particleTrigger} winAmount={winAmount} />
+        {lastWon && multiplier > 10 && <BigWinCelebration />}
         {lastWon !== null && lastWon !== undefined && (
           <ParticleExplosion isWin={lastWon} trigger={particleTrigger} />
         )}
-
         <div className="relative flex flex-col items-center justify-center space-y-6">
-          {/* Animated Dice */}
           <motion.div
             className="py-8"
-            initial={{ scale: 1 }}
             animate={{ scale: isPlaying && !prefersReducedMotion ? [1, 1.05, 1] : 1 }}
-            transition={{ repeat: isPlaying && !prefersReducedMotion ? Number.POSITIVE_INFINITY : 0, duration: 0.5 }}
+            transition={{ repeat: isPlaying && !prefersReducedMotion ? Infinity : 0, duration: 0.5 }}
           >
-            <AnimatedDice
-              isRolling={isPlaying}
-              outcome={lastOutcome}
-            />
+            <AnimatedDice isRolling={isPlaying} outcome={lastOutcome} />
           </motion.div>
-
-          {/* Result Display */}
           <AnimatePresence mode="wait">
             {lastOutcome !== null && lastOutcome !== undefined && !isPlaying && showResult && (
               <motion.div
@@ -135,13 +129,8 @@ export function DiceGame({
                 transition={{ duration: 0.4, type: 'spring', stiffness: 200, damping: 20 }}
                 className="text-center"
               >
-                <p className="text-sm text-muted-foreground mb-1">Last Roll</p>
-                <motion.p
-                  className="text-5xl font-bold mb-2"
-                  initial={{ scale: 0.5 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.1 }}
-                >
+                <p className="text-sm text-cyan-300 mb-1 font-mono">Roll Result</p>
+                <motion.p className="text-5xl font-bold mb-2 text-white font-mono glitch" data-text={lastOutcome.toFixed(2)}>
                   <PulseNumber value={lastOutcome} decimals={2} />
                 </motion.p>
                 <motion.div
@@ -149,223 +138,58 @@ export function DiceGame({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
-                    lastWon ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                    lastWon ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
                   }`}
                 >
                   {lastWon && <Sparkles className="w-4 h-4" />}
-                  <span className="text-lg font-semibold">
-                    {lastWon ? 'You Won!' : 'You Lost'}
+                  <span className={`text-lg font-semibold ${lastWon ? 'glitch-win' : ''}`} data-text={lastWon ? 'WIN DETECTED' : 'LOSS DETECTED'}>
+                    {lastWon ? 'WIN DETECTED' : 'LOSS DETECTED'}
                   </span>
-                  {lastWon && <Sparkles className="w-4 h-4" />}
                 </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        {/* Target Indicator */}
-        <motion.div
-          className="mt-6 relative"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="flex justify-between text-sm mb-2">
-            <motion.span
-              className="text-green-500 font-medium"
-              animate={{ opacity: [1, 0.7, 1] }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-            >
-              Win Zone (&lt; {target})
-            </motion.span>
-            <motion.span
-              className="text-red-500 font-medium"
-              animate={{ opacity: [1, 0.7, 1] }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, delay: 1 }}
-            >
-              Lose Zone (&gt;= {target})
-            </motion.span>
-          </div>
-          <div className="h-4 bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 rounded-full relative overflow-hidden shadow-lg">
-            {/* Animated shimmer effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-              animate={{ x: ['-100%', '200%'] }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
+        <motion.div className="mt-6 relative" animate={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 10 }}>
+          <div className="h-4 bg-gradient-to-r from-cyan-400 to-pink-500 rounded-full relative shadow-lg">
+            <motion.div className="absolute top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-full" style={{ left: `${target}%` }}
+              animate={{ boxShadow: ['0 0 10px #fff', '0 0 20px #fff', '0 0 10px #fff'] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
             />
-            <motion.div
-              className="absolute top-1/2 -translate-y-1/2 w-1 h-6 bg-white shadow-xl rounded-full"
-              style={{ left: `${target}%` }}
-              animate={{
-                boxShadow: [
-                  '0 0 10px rgba(255,255,255,0.5)',
-                  '0 0 20px rgba(255,255,255,0.8)',
-                  '0 0 10px rgba(255,255,255,0.5)',
-                ],
-              }}
-              transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-            />
-          </div>
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>0</span>
-            <span>50</span>
-            <span>100</span>
           </div>
         </motion.div>
       </Card>
 
       {/* Bet Controls */}
-      <Card className="relative p-6 overflow-hidden backdrop-blur-sm bg-card/95 border-2">
-        {/* Glassmorphism overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-primary/5 pointer-events-none" />
-
-        <motion.div
-          className="space-y-6 relative"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          {/* Bet Amount */}
-          <motion.div
-            whileHover={{ scale: prefersReducedMotion ? 1 : 1.01 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          >
-            <Label htmlFor="betAmount">Bet Amount</Label>
-            <Input
-              id="betAmount"
-              type="number"
-              step="0.001"
-              min="0"
-              value={betAmount}
-              onChange={e => setBetAmount(e.target.value)}
-              disabled={isPlaying}
-              className="mt-1.5"
-            />
-            <div className="flex gap-2 mt-2">
-              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    sound.playClick();
-                    setBetAmount((parseFloat(betAmount) / 2).toFixed(8));
-                  }}
-                  disabled={isPlaying}
-                >
-                  ½
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    sound.playClick();
-                    setBetAmount((parseFloat(betAmount) * 2).toFixed(8));
-                  }}
-                  disabled={isPlaying}
-                >
-                  2×
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    sound.playClick();
-                    setBetAmount(currentBalance.toFixed(8));
-                  }}
-                  disabled={isPlaying}
-                >
-                  Max
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Quick Bet Controls */}
-          <QuickBetControls
-            betAmount={betAmount}
-            onSetBetAmount={(amount) => {
-              sound.playClick();
-              setBetAmount(amount);
-            }}
-            disabled={isPlaying}
-            currentBalance={currentBalance}
-          />
-
-          {/* Target */}
+      <Card className="relative p-6 bg-black/50 border-pink-500/20 border-2">
+        <motion.div className="space-y-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div>
-            <div className="flex justify-between mb-2">
-              <Label>Roll Under</Label>
-              <span className="text-sm font-medium">{target.toFixed(2)}</span>
-            </div>
-            <Slider
-              value={[target]}
-              onValueChange={values => setTarget(values[0])}
-              min={1}
-              max={99}
-              step={0.01}
-              disabled={isPlaying}
-            />
+            <Label htmlFor="betAmount" className="text-pink-400 font-mono">Bet Amount</Label>
+            <Input id="betAmount" type="number" value={betAmount} onChange={e => setBetAmount(e.target.value)} disabled={isPlaying} className="mt-1.5 bg-transparent text-white border-pink-400/50" />
           </div>
-
-          {/* Stats */}
-          <motion.div
-            className="grid grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg border border-border/50"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div>
-              <p className="text-xs text-muted-foreground">Win Chance</p>
-              <p className="text-lg font-semibold">
-                <PulseNumber value={winChance} decimals={2} />%
-              </p>
+          <QuickBetControls betAmount={betAmount} onSetBetAmount={amount => { setBetAmount(amount); sound.playClick(); }} disabled={isPlaying} currentBalance={currentBalance} />
+          <div>
+            <Label className="text-cyan-400 font-mono">Roll Under {target.toFixed(2)}</Label>
+            <Slider value={[target]} onValueChange={values => setTarget(values[0])} min={1} max={99} step={0.01} disabled={isPlaying} />
+          </div>
+          <motion.div className="grid grid-cols-3 gap-4 p-4 bg-black/20 rounded-lg border border-white/10" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground font-mono">Win Chance</p>
+              <p className="text-lg font-semibold text-white"><PulseNumber value={winChance} decimals={2} />%</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Multiplier</p>
-              <p className="text-lg font-semibold flex items-center">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <PulseNumber value={multiplier} decimals={4} />×
-              </p>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground font-mono">Multiplier</p>
+              <p className="text-lg font-semibold text-white"><TrendingUp className="inline w-4 h-4 mr-1" /><PulseNumber value={multiplier} decimals={4} />×</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Potential Win</p>
-              <p className="text-lg font-semibold text-green-500">
-                <CountingNumber value={potentialWin} decimals={8} />
-              </p>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground font-mono">Potential Win</p>
+              <p className="text-lg font-semibold text-green-400"><CountingNumber value={potentialWin} decimals={8} /></p>
             </div>
           </motion.div>
-
-          {/* Keyboard Shortcuts Hint */}
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Keyboard className="w-3 h-3" />
-            <span>Enter to bet • ↑↓ to adjust target</span>
-          </div>
-
-          {/* Place Bet Button */}
-          <motion.div
-            whileHover={{ scale: prefersReducedMotion ? 1 : 1.02 }}
-            whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}
-          >
-            <Button
-              className="w-full relative overflow-hidden"
-              size="lg"
-              onClick={handlePlaceBet}
-              disabled={isPlaying}
-            >
-              {isPlaying && !prefersReducedMotion && (
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
-                />
-              )}
-              <span className="relative z-10">
-                {isPlaying ? 'Rolling...' : 'Place Bet (Enter)'}
-              </span>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-mono"><Keyboard className="w-3 h-3" /><span>Enter to bet • ↑↓ to adjust</span></div>
+          <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.02 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}>
+            <Button className="w-full cyberpunk-button" size="lg" onClick={handlePlaceBet} disabled={isPlaying}>
+              <span className="relative z-10">{isPlaying ? 'ROLLING...' : 'PLACE BET'}</span>
             </Button>
           </motion.div>
         </motion.div>

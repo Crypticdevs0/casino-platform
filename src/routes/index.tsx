@@ -16,7 +16,15 @@ import { RecentResults } from '@/components/RecentResults';
 import { PlayerStats } from '@/components/PlayerStats';
 import { Leaderboard } from '@/components/Leaderboard';
 import { Achievements } from '@/components/Achievements';
-import { Missions } from '@/components/Missions';
+import { DailyMissions } from '@/components/DailyMissions';
+import { PlayerLevel } from '@/components/PlayerLevel';
+import { LiveActivityFeed } from '@/components/LiveActivityFeed';
+import { SettingsPortal } from '@/components/SettingsPortal';
+import { OnboardingTutorial } from '@/components/OnboardingTutorial';
+import { ResponsibleGamingModal } from '@/components/ResponsibleGamingModal';
+import { ArcadePassModal } from '@/components/ArcadePassModal';
+import { WelcomeOfferModal } from '@/components/WelcomeOfferModal';
+import { Button } from '@/components/ui/button';
 import { useWallet, useWalletBalances, useUserWallets, useDeposit } from '@/hooks/useWallet';
 import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification } from '@/hooks/useGame';
 import { createConfetti } from '@/lib/confetti';
@@ -36,6 +44,9 @@ function App() {
 	const { connectedAddress, currentUser, isConnected, connectWallet, disconnectWallet } = useWallet();
 	const [selectedCurrency, setSelectedCurrency] = useState('ETH');
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
+	const [rgModalOpen, setRgModalOpen] = useState(false);
+	const [arcadePassModalOpen, setArcadePassModalOpen] = useState(false);
+	const [welcomeModalOpen, setWelcomeModalOpen] = useState(true); // Default to open for demo
 	const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 	const [activeTab, setActiveTab] = useState('dice');
 	const [isAutoBetting, setIsAutoBetting] = useState(false);
@@ -265,13 +276,17 @@ function App() {
 							Provably Fair Casino
 						</h1>
 					</div>
-					<p className="text-muted-foreground flex justify-between items-center">
-						<span>Transparent, verifiable, blockchain-powered gaming with multiple games</span>
+					<div className="text-muted-foreground flex justify-between items-center">
+						<div id="player-level-display"><PlayerLevel onClick={() => setArcadePassModalOpen(true)} /></div>
 						<div className="flex items-center gap-2">
+							<Button id="responsible-gaming-button" variant="outline" size="sm" onClick={() => setRgModalOpen(true)}>
+								<Shield className="w-4 h-4 mr-2" />
+								Responsible Gaming
+							</Button>
 							<SoundToggle />
 							<ThemeSwitcher />
 						</div>
-					</p>
+					</div>
 				</motion.div>
 
 				{/* Wallet Connection */}
@@ -344,12 +359,14 @@ function App() {
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.4, delay: 0.2 }}
 							>
-								<BalanceDisplay
-									wallets={wallets}
-									selectedCurrency={selectedCurrency}
-									onCurrencyChange={setSelectedCurrency}
-									onDeposit={() => setDepositDialogOpen(true)}
-								/>
+								<div id="wallet-balance-display">
+									<BalanceDisplay
+										wallets={wallets}
+										selectedCurrency={selectedCurrency}
+										onCurrencyChange={setSelectedCurrency}
+										onDeposit={() => setDepositDialogOpen(true)}
+									/>
+								</div>
 							</motion.div>
 
 							{/* Main Content */}
@@ -361,7 +378,7 @@ function App() {
 							>
 								<div className="lg:col-span-2">
 									<Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-										<TabsList className="grid w-full grid-cols-3 sm:grid-cols-9 gap-1">
+										<TabsList id="main-game-tabs" className="grid w-full grid-cols-3 sm:grid-cols-9 gap-1">
 											<TabsTrigger value="dice" className="text-xs">
 												<Dice1 className="w-4 h-4 mr-1" />
 												<span className="hidden sm:inline">Dice</span>
@@ -410,6 +427,10 @@ function App() {
 												<Star className="w-4 h-4 mr-1" />
 												<span className="hidden sm:inline">Missions</span>
 											</TabsTrigger>
+											<TabsTrigger value="settings" className="text-xs">
+												<Shield className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Settings</span>
+											</TabsTrigger>
 										</TabsList>
 
 										<Suspense fallback={<div>Loading...</div>}>
@@ -420,6 +441,7 @@ function App() {
 													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
 													lastOutcome={lastSession?.outcome}
 													lastWon={lastSession?.status === 2}
+													winAmount={parseFloat(lastSession?.win_amount || '0')}
 												/>
 											</TabsContent>
 
@@ -472,6 +494,7 @@ function App() {
 													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
 													lastOutcome={lastSession?.outcome}
 													lastWon={lastSession?.status === 2}
+													winAmount={parseFloat(lastSession?.win_amount || '0')}
 												/>
 												<AutoBet
 													onStart={handleStartAutoBet}
@@ -517,11 +540,15 @@ function App() {
 										</TabsContent>
 
 										<TabsContent value="missions">
-											<Missions />
+											<DailyMissions />
+										</TabsContent>
+										<TabsContent value="settings">
+											<SettingsPortal />
 										</TabsContent>
 									</Tabs>
 								</div>
 								<div className="space-y-6">
+									<LiveActivityFeed />
 									<RecentResults
 										results={gameSessions.map(s => ({
 											won: s.status === 2,
@@ -534,6 +561,11 @@ function App() {
 						</motion.div>
 					)}
 				</AnimatePresence>
+
+				<OnboardingTutorial />
+				<ResponsibleGamingModal isOpen={rgModalOpen} onClose={() => setRgModalOpen(false)} />
+				<ArcadePassModal isOpen={arcadePassModalOpen} onClose={() => setArcadePassModalOpen(false)} />
+				<WelcomeOfferModal isOpen={welcomeModalOpen} onClose={() => setWelcomeModalOpen(false)} />
 
 				{/* Deposit Dialog */}
 				<DepositDialog
