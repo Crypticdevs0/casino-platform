@@ -1,13 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { TrendingUp, Zap, Bomb } from 'lucide-react';
+import { TrendingUp, Zap, Bomb, Keyboard } from 'lucide-react';
 import { ParticleExplosion } from '@/components/ParticleExplosion';
 import { CountingNumber, PulseNumber } from '@/components/CountingNumber';
+import { QuickBetControls } from '@/components/QuickBetControls';
+import { useSound } from '@/hooks/useSound';
+import { useHaptic } from '@/hooks/useHaptic';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface BalloonGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
@@ -124,6 +128,10 @@ export function BalloonGame({
   const [isPopping, setIsPopping] = useState(false);
   const previousOutcome = useRef<number | null | undefined>(lastOutcome);
 
+  const sound = useSound();
+  const haptic = useHaptic();
+  const prefersReducedMotion = useReducedMotion();
+
   // Calculate multiplier based on risk
   const multiplier = 1 + (riskLevel / 10);
   const popChance = riskLevel;
@@ -131,6 +139,14 @@ export function BalloonGame({
 
   useEffect(() => {
     if (lastOutcome !== null && lastOutcome !== undefined && lastOutcome !== previousOutcome.current) {
+      if (lastWon) {
+        sound.playWin();
+        haptic.success();
+      } else {
+        sound.playLose();
+        haptic.error();
+      }
+
       setIsPopping(true);
 
       // Animate balloon growing before pop
@@ -154,9 +170,9 @@ export function BalloonGame({
 
       return () => clearInterval(growthInterval);
     }
-  }, [lastOutcome]);
+  }, [lastOutcome, lastWon, sound, haptic]);
 
-  const handlePlaceBet = () => {
+  const handlePlaceBet = useCallback(() => {
     if (parseFloat(betAmount) <= 0) {
       alert('Please enter a valid bet amount');
       return;
@@ -167,18 +183,35 @@ export function BalloonGame({
       return;
     }
 
+    sound.playSpin();
+    haptic.light();
     setShowResult(false);
     setIsPopping(false);
     setBalloonScale(0);
     onPlaceBet(betAmount, riskLevel);
-  };
+  }, [betAmount, riskLevel, currentBalance, sound, haptic, onPlaceBet]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isPlaying) return;
+
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handlePlaceBet();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isPlaying, betAmount, riskLevel, handlePlaceBet]);
 
   return (
     <div className="space-y-6">
       {/* Balloon Display */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-b from-sky-900/20 to-blue-900/20 border-2">
+      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-pink-900/20 to-purple-900/20 border-2">
         {/* Sky background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-sky-400/10 via-sky-500/5 to-transparent pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-transparent to-purple-500/5 pointer-events-none">
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
             animate={{ x: ['-100%', '200%'] }}
@@ -288,7 +321,7 @@ export function BalloonGame({
           transition={{ delay: 0.1 }}
         >
           {/* Bet Amount */}
-          <motion.div whileHover={{ scale: 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+          <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
             <Label htmlFor="balloonBetAmount">Bet Amount</Label>
             <Input
               id="balloonBetAmount"
@@ -301,31 +334,40 @@ export function BalloonGame({
               className="mt-1.5"
             />
             <div className="flex gap-2 mt-2">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount((parseFloat(betAmount) / 2).toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   ½
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount((parseFloat(betAmount) * 2).toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   2×
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount(currentBalance.toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount(currentBalance.toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   Max
@@ -333,6 +375,17 @@ export function BalloonGame({
               </motion.div>
             </div>
           </motion.div>
+
+          {/* Quick Bet Controls */}
+          <QuickBetControls
+            betAmount={betAmount}
+            onSetBetAmount={(amount) => {
+              sound.playClick();
+              setBetAmount(amount);
+            }}
+            disabled={isPlaying}
+            currentBalance={currentBalance}
+          />
 
           {/* Risk Level */}
           <div>
@@ -378,15 +431,21 @@ export function BalloonGame({
             </div>
           </motion.div>
 
+          {/* Keyboard Shortcuts Hint */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Keyboard className="w-3 h-3" />
+            <span>Enter to inflate</span>
+          </div>
+
           {/* Inflate Button */}
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.02 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}>
             <Button
               className="w-full relative overflow-hidden bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600"
               size="lg"
               onClick={handlePlaceBet}
               disabled={isPlaying}
             >
-              {isPlaying && (
+              {isPlaying && !prefersReducedMotion && (
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                   animate={{ x: ['-100%', '200%'] }}
@@ -394,7 +453,7 @@ export function BalloonGame({
                 />
               )}
               <span className="relative z-10">
-                {isPlaying ? 'Inflating...' : 'Inflate Balloon'}
+                {isPlaying ? 'Inflating...' : 'Inflate Balloon (Enter)'}
               </span>
             </Button>
           </motion.div>

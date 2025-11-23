@@ -79,7 +79,6 @@ export function BalanceDisplay({
                 <CountingNumber
                   value={currentBalance}
                   decimals={8}
-                  duration={0.6}
                 />
               </p>
               <AnimatePresence>
@@ -174,7 +173,6 @@ export function BalanceDisplay({
                 <CountingNumber
                   value={parseFloat(selectedWallet.available_balance)}
                   decimals={8}
-                  duration={0.5}
                 />
               </p>
             </motion.div>
@@ -188,7 +186,6 @@ export function BalanceDisplay({
                 <CountingNumber
                   value={parseFloat(selectedWallet.locked_balance)}
                   decimals={8}
-                  duration={0.5}
                 />
               </p>
             </motion.div>

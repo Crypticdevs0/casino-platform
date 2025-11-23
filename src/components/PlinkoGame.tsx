@@ -1,12 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Circle, TrendingUp, Target } from 'lucide-react';
+import { Circle, TrendingUp, Target, Keyboard } from 'lucide-react';
 import { ParticleExplosion } from '@/components/ParticleExplosion';
 import { CountingNumber, PulseNumber } from '@/components/CountingNumber';
+import { QuickBetControls } from '@/components/QuickBetControls';
+import { useSound } from '@/hooks/useSound';
+import { useHaptic } from '@/hooks/useHaptic';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface PlinkoGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
@@ -188,8 +192,20 @@ export function PlinkoGame({
   const [lastMultiplier, setLastMultiplier] = useState(0);
   const previousOutcome = useRef<number | null | undefined>(lastOutcome);
 
+  const sound = useSound();
+  const haptic = useHaptic();
+  const prefersReducedMotion = useReducedMotion();
+
   useEffect(() => {
     if (lastOutcome !== null && lastOutcome !== undefined && lastOutcome !== previousOutcome.current) {
+      if (lastWon) {
+        sound.playWin();
+        haptic.success();
+      } else {
+        sound.playLose();
+        haptic.error();
+      }
+
       // Map outcome to bucket index (0-12)
       const index = Math.floor((lastOutcome / 100) * MULTIPLIERS.length);
       const clampedIndex = Math.max(0, Math.min(MULTIPLIERS.length - 1, index));
@@ -203,9 +219,9 @@ export function PlinkoGame({
         previousOutcome.current = lastOutcome;
       }, 2000);
     }
-  }, [lastOutcome]);
+  }, [lastOutcome, lastWon, sound, haptic]);
 
-  const handlePlaceBet = () => {
+  const handlePlaceBet = useCallback(() => {
     if (parseFloat(betAmount) <= 0) {
       alert('Please enter a valid bet amount');
       return;
@@ -216,10 +232,27 @@ export function PlinkoGame({
       return;
     }
 
+    sound.playSpin();
+    haptic.light();
     setShowResult(false);
     setBucketIndex(null);
     onPlaceBet(betAmount, 50);
-  };
+  }, [betAmount, currentBalance, sound, haptic, onPlaceBet]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isPlaying) return;
+
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handlePlaceBet();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isPlaying, betAmount, handlePlaceBet]);
 
   const maxMultiplier = Math.max(...MULTIPLIERS);
   const potentialWin = parseFloat(betAmount) * maxMultiplier;
@@ -227,9 +260,9 @@ export function PlinkoGame({
   return (
     <div className="space-y-6">
       {/* Plinko Board */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-b from-purple-900/20 to-blue-900/20 border-2">
+      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border-2">
         {/* Animated background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 via-blue-500/5 to-transparent pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none">
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"
             animate={{ y: ['-100%', '200%'] }}
@@ -309,7 +342,7 @@ export function PlinkoGame({
           transition={{ delay: 0.1 }}
         >
           {/* Bet Amount */}
-          <motion.div whileHover={{ scale: 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
+          <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
             <Label htmlFor="plinkoBetAmount">Bet Amount</Label>
             <Input
               id="plinkoBetAmount"
@@ -322,31 +355,40 @@ export function PlinkoGame({
               className="mt-1.5"
             />
             <div className="flex gap-2 mt-2">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) / 2).toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount((parseFloat(betAmount) / 2).toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   ½
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount((parseFloat(betAmount) * 2).toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount((parseFloat(betAmount) * 2).toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   2×
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setBetAmount(currentBalance.toFixed(8))}
+                  onClick={() => {
+                    sound.playClick();
+                    setBetAmount(currentBalance.toFixed(8));
+                  }}
                   disabled={isPlaying}
                 >
                   Max
@@ -354,6 +396,17 @@ export function PlinkoGame({
               </motion.div>
             </div>
           </motion.div>
+
+          {/* Quick Bet Controls */}
+          <QuickBetControls
+            betAmount={betAmount}
+            onSetBetAmount={(amount) => {
+              sound.playClick();
+              setBetAmount(amount);
+            }}
+            disabled={isPlaying}
+            currentBalance={currentBalance}
+          />
 
           {/* Stats */}
           <motion.div
@@ -377,15 +430,21 @@ export function PlinkoGame({
             </div>
           </motion.div>
 
+          {/* Keyboard Shortcuts Hint */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Keyboard className="w-3 h-3" />
+            <span>Enter to drop</span>
+          </div>
+
           {/* Drop Button */}
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.02 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}>
             <Button
               className="w-full relative overflow-hidden bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
               size="lg"
               onClick={handlePlaceBet}
               disabled={isPlaying}
             >
-              {isPlaying && (
+              {isPlaying && !prefersReducedMotion && (
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
                   animate={{ x: ['-100%', '200%'] }}
@@ -406,7 +465,7 @@ export function PlinkoGame({
                 ) : (
                   <>
                     <Circle className="w-5 h-5" />
-                    DROP BALL
+                    DROP BALL (Enter)
                   </>
                 )}
               </span>

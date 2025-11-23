@@ -1,89 +1,65 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface Particle {
   id: number;
   x: number;
   y: number;
-  color: string;
   size: number;
-  angle: number;
-  velocity: number;
+  color: string;
 }
 
 interface ParticleExplosionProps {
   isWin: boolean;
-  trigger: number; // Change this to trigger new explosion
-  centerX?: number;
-  centerY?: number;
+  trigger: number;
 }
 
-export function ParticleExplosion({ isWin, trigger, centerX = 50, centerY = 50 }: ParticleExplosionProps) {
+const colors = {
+  win: ['#fde047', '#facc15', '#eab308', '#f59e0b'],
+  lose: ['#9ca3af', '#6b7280', '#4b5563'],
+};
+
+export function ParticleExplosion({ isWin, trigger }: ParticleExplosionProps) {
   const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
-    if (trigger === 0) return;
+    if (trigger > 0) {
+      const newParticles = Array.from({ length: 50 }).map((_, i) => ({
+        id: i,
+        x: Math.random() * 200 - 100,
+        y: Math.random() * 200 - 100,
+        size: Math.random() * 8 + 2,
+        color: isWin
+          ? colors.win[Math.floor(Math.random() * colors.win.length)]
+          : colors.lose[Math.floor(Math.random() * colors.lose.length)],
+      }));
+      setParticles(newParticles);
+    }
+  }, [trigger, isWin]);
 
-    const particleCount = isWin ? 40 : 20;
-    const colors = isWin
-      ? ['#22c55e', '#16a34a', '#84cc16', '#fbbf24', '#f59e0b']
-      : ['#ef4444', '#dc2626', '#f87171', '#fb923c'];
-
-    const newParticles: Particle[] = Array.from({ length: particleCount }, (_, i) => ({
-      id: Math.random(),
-      x: centerX,
-      y: centerY,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      size: Math.random() * 8 + 4,
-      angle: (360 / particleCount) * i + Math.random() * 30,
-      velocity: Math.random() * 150 + 100,
-    }));
-
-    setParticles(newParticles);
-
-    const timeout = setTimeout(() => setParticles([]), 2000);
-    return () => clearTimeout(timeout);
-  }, [trigger, isWin, centerX, centerY]);
+  if (!particles.length) return null;
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      <AnimatePresence>
-        {particles.map((particle) => {
-          const radians = (particle.angle * Math.PI) / 180;
-          const finalX = particle.x + Math.cos(radians) * particle.velocity;
-          const finalY = particle.y + Math.sin(radians) * particle.velocity;
-
-          return (
-            <motion.div
-              key={particle.id}
-              initial={{
-                x: `${particle.x}%`,
-                y: `${particle.y}%`,
-                opacity: 1,
-                scale: 1,
-              }}
-              animate={{
-                x: `${finalX}%`,
-                y: `${finalY}%`,
-                opacity: 0,
-                scale: 0.2,
-              }}
-              exit={{ opacity: 0 }}
-              transition={{
-                duration: 1.5,
-                ease: [0.25, 0.46, 0.45, 0.94],
-              }}
-              className="absolute rounded-full"
-              style={{
-                backgroundColor: particle.color,
-                width: particle.size,
-                height: particle.size,
-                boxShadow: `0 0 10px ${particle.color}`,
-              }}
-            />
-          );
-        })}
-      </AnimatePresence>
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full"
+          initial={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+          animate={{
+            opacity: 0,
+            x: p.x,
+            y: p.y,
+            scale: 0,
+            transition: { duration: 1, ease: 'easeOut' },
+          }}
+          style={{
+            width: p.size,
+            height: p.size,
+            backgroundColor: p.color,
+          }}
+        />
+      ))}
     </div>
   );
 }
