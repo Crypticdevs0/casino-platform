@@ -582,36 +582,68 @@ function App() {
 										</TabsContent>
 									</Tabs>
 
-									<div className="space-y-6">
+									<div className="space-y-6 mt-6">
 										<LiveActivityFeed sessions={gameSessions} currency={selectedCurrency} />
 										<RecentResults
-					<KycVerificationDialog
-						open={kycDialogOpen}
-						onOpenChange={setKycDialogOpen}
-						level={currentUser.kyc_level}
-						isBanned={currentUser.is_banned}
-						onUpgradeLevel={async (nextLevel) => {
-							await setUserKycLevel(nextLevel);
-						}}
-					/>
-				)}
+											results={gameSessions.map((s) => ({
+												won: s.status === 2,
+												multiplier:
+													parseFloat(s.win_amount || '0') / Math.max(parseFloat(s.bet_amount || '1'), 1),
+											}))}
+										/>
+										<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
+									</div>
+								</div>
+							</motion.div>
+
+							<div className="space-y-6">
+								<PlayerLevel />
+								<Leaderboard />
+								<Achievements />
+							</div>
+						</motion.div>
+					</motion.div>
+				</AnimatePresence>
+
+				{/* Global overlays & dialogs */}
+				<KycVerificationDialog
+					open={kycDialogOpen}
+					onOpenChange={setKycDialogOpen}
+					level={currentUser?.kyc_level}
+					isBanned={currentUser?.is_banned}
+					onUpgradeLevel={async (nextLevel) => {
+						await setUserKycLevel(nextLevel);
+					}}
+				/>
 
 				<OnboardingTutorial />
+
 				<ResponsibleGamingModal
 					isOpen={rgModalOpen}
 					onClose={() => setRgModalOpen(false)}
 					kycLevel={currentUser?.kyc_level}
 				/>
-				<ArcadePassModal isOpen={arcadePassModalOpen} onClose={() => setArcadePassModalOpen(false)} />
-				<WelcomeOfferModal isOpen={welcomeModalOpen} onClose={() => setWelcomeModalOpen(false)} />
 
-				{/* Deposit Dialog */}
+				<ArcadePassModal
+					isOpen={arcadePassModalOpen}
+					onClose={() => setArcadePassModalOpen(false)}
+				/>
+
+				<WelcomeOfferModal
+					isOpen={welcomeModalOpen}
+					onClose={() => setWelcomeModalOpen(false)}
+				/>
+
 				<DepositDialog
 					open={depositDialogOpen}
 					onOpenChange={setDepositDialogOpen}
 					currency={selectedCurrency}
 					onDeposit={handleDeposit}
 					isDepositing={depositMutation.isPending}
+				/>
+
+
+										isDepositing={depositMutation.isPending}
 				/>
 			</div>
 		</div>
