@@ -72,10 +72,14 @@ const useAuthStore = create<AuthStore>(
 
 		// Validate token by making a request to the /me endpoint
 		validateToken: async (token: string): Promise<boolean> => {
-			console.log("Validating token...", { API_BASE_URL });
+			if (process.env.NODE_ENV === 'development') {
+				console.debug("Validating token...");
+			}
 
 			if (!API_BASE_URL) {
-				console.error("API_BASE_URL is not set");
+				if (process.env.NODE_ENV === 'development') {
+					console.error("API_BASE_URL is not set");
+				}
 				return false;
 			}
 
@@ -88,10 +92,14 @@ const useAuthStore = create<AuthStore>(
 					},
 				});
 
-				console.log("Token validation response:", response.status, response.ok);
+				if (process.env.NODE_ENV === 'development') {
+					console.debug("Token validation response:", response.status);
+				}
 				return response.ok;
 			} catch (error) {
-				console.warn("Token validation failed:", error);
+				if (process.env.NODE_ENV === 'development') {
+					console.warn("Token validation failed:", error);
+				}
 				return false;
 			}
 		},
@@ -152,7 +160,9 @@ const useAuthStore = create<AuthStore>(
 
 		// Initialize the authentication system
 		initialize: async (): Promise<void> => {
-			console.log("Auth initialization started");
+			if (process.env.NODE_ENV === 'development') {
+				console.debug("Auth initialization started");
+			}
 			try {
 				// Initialize from storage
 				await initializeFromStorage(get, set);
@@ -166,15 +176,17 @@ const useAuthStore = create<AuthStore>(
 				// If still loading after initialization, set to unauthenticated
 				const currentStatus = get().status;
 				if (currentStatus === "loading") {
-					console.log(
-						"Auth initialization complete - setting to unauthenticated",
-					);
+					if (process.env.NODE_ENV === 'development') {
+						console.debug("Auth initialization complete - no valid session");
+					}
 					set({ status: "unauthenticated" });
-				} else {
-					console.log("Auth initialization complete - status:", currentStatus);
+				} else if (process.env.NODE_ENV === 'development') {
+					console.debug("Auth initialization complete - status:", currentStatus);
 				}
 			} catch (error) {
-				console.error("Auth initialization failed:", error);
+				if (process.env.NODE_ENV === 'development') {
+					console.error("Auth initialization failed:", error);
+				}
 				set({ status: "unauthenticated" });
 			}
 		},
@@ -188,25 +200,33 @@ async function initializeFromStorage(
 	get: () => AuthStore,
 	set: (state: Partial<AuthStore>) => void,
 ): Promise<void> {
-	console.log("Initializing auth from storage...");
+	if (process.env.NODE_ENV === 'development') {
+		console.debug("Initializing auth from storage...");
+	}
 	const storedToken = localStorage.getItem("creao_auth_token");
 	if (storedToken) {
-		console.log("Found stored token, validating...");
+		if (process.env.NODE_ENV === 'development') {
+			console.debug("Found stored token, validating...");
+		}
 		const { validateToken } = get();
 		const isValid = await validateToken(storedToken);
 		if (isValid) {
-			console.log("Stored token is valid");
+			if (process.env.NODE_ENV === 'development') {
+				console.debug("Stored token is valid");
+			}
 			set({
 				token: storedToken,
 				status: "authenticated",
 			});
 		} else {
-			console.log("Stored token is invalid, clearing...");
+			if (process.env.NODE_ENV === 'development') {
+				console.debug("Stored token is invalid, clearing...");
+			}
 			localStorage.removeItem("creao_auth_token");
 			set({ status: "invalid_token" });
 		}
-	} else {
-		console.log("No stored token found");
+	} else if (process.env.NODE_ENV === 'development') {
+		console.debug("No stored token found");
 		set({ status: "unauthenticated" });
 	}
 }
@@ -239,7 +259,9 @@ function setupMessageListener(get: () => AuthStore): void {
 				await setToken(data.token, event.origin);
 			}
 		} catch (error) {
-			console.warn("Error processing auth message:", error);
+			if (process.env.NODE_ENV === 'development') {
+				console.warn("Error processing auth message:", error);
+			}
 		}
 	});
 }
@@ -296,7 +318,9 @@ export function useCreaoAuth() {
  */
 export async function initializeAuthIntegration(): Promise<void> {
 	await ensureInitialized();
-	console.log("Auth integration initialized");
+	if (process.env.NODE_ENV === 'development') {
+		console.debug("Auth integration initialized");
+	}
 }
 
 /**

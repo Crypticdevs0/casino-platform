@@ -237,7 +237,9 @@ function GameLobbyContent() {
   }, [jackpotAmount]);
   
   const handlePlayGame = (gameId: string) => {
-    console.log(`Playing game: ${gameId}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`Playing game: ${gameId}`);
+    }
     // In a real app, this would navigate to the game or open it in a modal
   };
   

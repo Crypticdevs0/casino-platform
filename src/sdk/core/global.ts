@@ -13,16 +13,15 @@ function initializeCreaoSDK() {
 	const config = parseCurrentUrl();
 	window.APP_CONFIG = config;
 
-	console.log("App Configuration:", {
-		userId: config.userId,
-		projectId: config.projectId,
-		taskId: config.taskId,
-		workspaceId: config.workspaceId,
-		uploadFolder: config.uploadFolder,
-		baseUrl: config.baseUrl,
-		isValidBuildUrl: config.isValidBuildUrl,
-		currentUrl: window.location.href,
-	});
+	if (process.env.NODE_ENV === 'development') {
+		console.debug('App Configuration:', {
+			userId: config.userId,
+			projectId: config.projectId,
+			taskId: config.taskId,
+			workspaceId: config.workspaceId,
+			isValidBuildUrl: config.isValidBuildUrl
+		});
+	}
 
 	Promise.resolve().then(() => {
 		initializeAuthIntegration();
