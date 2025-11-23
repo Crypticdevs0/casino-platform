@@ -2,24 +2,41 @@ import { create } from 'zustand';
 import { devtools, persist, StateStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { createSelectorHooks } from 'zustand-selector-hooks';
+import { v4 as uuidv4 } from 'uuid';
 
 // Types
 export type GameType = 'slot' | 'blackjack' | 'roulette' | 'poker' | 'baccarat';
 
 type GameResult = {
+  id: string;
   winAmount: number;
   multiplier?: number;
   winningLines?: number[];
+  symbols?: string[];
+  bonusRounds?: number;
+  freeSpins?: number;
   timestamp: number;
   gameState?: Record<string, unknown>;
+  isJackpot?: boolean;
 };
 
 type GameHistoryItem = {
+  id: string;
   game: GameType;
   timestamp: number;
   bet: number;
   win: number;
-  result: Omit<GameResult, 'timestamp'>;
+  result: Omit<GameResult, 'timestamp' | 'id'>;
+};
+
+type GameStatistics = {
+  totalWins: number;
+  totalSpins: number;
+  winRate: number;
+  biggestWin: number;
+  totalWagered: number;
+  favoriteGame: { game: GameType; count: number } | null;
+  recentWins: Array<{ amount: number; timestamp: number }>;
 };
 
 // Constants
@@ -29,8 +46,12 @@ const GAME_CONFIG = {
   MAX_HISTORY: 100,
   MIN_BET: 1,
   MAX_BET: 1000,
-  STORAGE_VERSION: '1.0',
+  STORAGE_VERSION: '1.1', // Bumped version for new schema
   STORAGE_KEY: 'casino_game_state',
+  JACKPOT_THRESHOLD: 1000,
+  BONUS_FACTOR: 1.5,
+  MAX_FREE_SPINS: 20,
+  SESSION_TIMEOUT: 30 * 60 * 1000, // 30 minutes
 } as const;
 
 // Custom storage with error handling
@@ -62,34 +83,45 @@ const createCustomStorage = (): StateStorage => {
 };
 
 export interface GameState {
-  // Game session state
+  // Core game state
   isPlaying: boolean;
   currentGame: GameType | null;
   balance: number;
   betAmount: number;
   lastWin: number;
   gameHistory: GameHistoryItem[];
-  
-  // Game settings
+  lastResults: GameResult[];
+  currentGameResult: GameResult | null;
+  isProcessingResult: boolean;
+
+  // Settings
   autoPlay: boolean;
   soundEnabled: boolean;
   quickSpin: boolean;
   lastPlayed: number | null;
-  
+  sessionStart: number | null;
+
   // Actions
   startGame: (game: GameType) => void;
-  endGame: (result: Omit<GameResult, 'timestamp'>) => void;
+  endGame: (result: Omit<GameResult, 'timestamp' | 'id'>) => void;
   placeBet: (amount: number) => void;
   cashOut: () => void;
-  updateBalance: (amount: number) => void;
+  updateBalance: (amount: number, reason?: string) => void;
   toggleAutoPlay: () => void;
   toggleSound: () => void;
   toggleQuickSpin: () => void;
   resetGame: () => void;
+  processGameResult: (result: Omit<GameResult, 'timestamp' | 'id'>) => Promise<void>;
+  clearCurrentResult: () => void;
+
+  // Selectors
   getLastGameResult: () => GameHistoryItem | null;
   getTotalWins: () => number;
   getGamesPlayed: (gameType?: GameType) => number;
   canPlaceBet: (amount?: number) => boolean;
+  getGameStatistics: () => GameStatistics;
+  isSessionActive: () => boolean;
+  getCurrentStreak: () => number;
 }
 
 const initialState = {
@@ -99,10 +131,14 @@ const initialState = {
   betAmount: GAME_CONFIG.DEFAULT_BET,
   lastWin: 0,
   gameHistory: [],
+  lastResults: [],
+  currentGameResult: null,
+  isProcessingResult: false,
   autoPlay: false,
   soundEnabled: true,
   quickSpin: false,
   lastPlayed: null,
+  sessionStart: null,
 };
 
 // Create the store with middleware
@@ -111,205 +147,200 @@ export const useGameStore = create<GameState>()(
     persist(
       immer((set, get) => ({
         ...initialState,
-        
+
         startGame: (game) => {
-          const { balance, betAmount } = get();
-          
-          if (!game) {
-            throw new Error('No game specified');
-          }
-          
+          const { balance, betAmount, isSessionActive } = get();
           if (balance < betAmount) {
-            throw new Error('Insufficient balance for this bet');
+            throw new Error('Insufficient balance');
           }
-          
-          if (betAmount < GAME_CONFIG.MIN_BET || betAmount > GAME_CONFIG.MAX_BET) {
-            throw new Error(`Bet amount must be between ${GAME_CONFIG.MIN_BET} and ${GAME_CONFIG.MAX_BET}`);
+
+          // Reset session if inactive
+          const sessionActive = isSessionActive();
+          if (!sessionActive) {
+            set({ sessionStart: Date.now() });
           }
-          
+
           set((state) => {
             state.isPlaying = true;
             state.currentGame = game;
             state.balance -= betAmount;
             state.lastPlayed = Date.now();
-            
-            // Analytics event
-            trackEvent('game_started', { game, betAmount });
-          });
-        },
-        
-        endGame: (result) => {
-          const { currentGame, betAmount } = get();
-          
-          if (!currentGame) {
-            console.warn('No active game to end');
-            return;
-          }
-          
-          const winAmount = result?.winAmount || 0;
-          const gameResult: GameResult = {
-            ...result,
-            timestamp: Date.now(),
-          };
-          
-          set((state) => {
-            state.isPlaying = false;
-            state.lastWin = winAmount;
-            state.balance += winAmount;
-            
-            // Add to game history
-            const historyItem: GameHistoryItem = {
-              game: currentGame,
-              timestamp: Date.now(),
+            trackEvent('game_started', {
+              game,
               bet: betAmount,
-              win: winAmount,
-              result: {
-                winAmount,
-                multiplier: result?.multiplier,
-                winningLines: result?.winningLines,
-                gameState: result?.gameState,
-              },
-            };
-            
-            state.gameHistory.unshift(historyItem);
-            
-            // Keep history size in check
-            if (state.gameHistory.length > GAME_CONFIG.MAX_HISTORY) {
-              state.gameHistory.pop();
-            }
-            
-            // Analytics event
-            trackEvent('game_ended', {
-              game: currentGame,
-              bet: betAmount,
-              win: winAmount,
-              result: gameResult,
+              balance: state.balance,
+              sessionActive,
             });
           });
         },
-        
-        placeBet: (amount) => {
-          if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) {
-            throw new Error('Invalid bet amount');
-          }
-          
-          if (amount > get().balance) {
-            throw new Error('Insufficient balance');
-          }
-          
-          set((state) => {
-            state.betAmount = Math.min(Math.max(amount, GAME_CONFIG.MIN_BET), GAME_CONFIG.MAX_BET);
+
+        endGame: (result) => {
+          const { currentGame, betAmount, processGameResult } = get();
+          if (!currentGame) return;
+
+          // Process the game result with enhanced handling
+          processGameResult({
+            ...result,
+            id: uuidv4(),
           });
         },
-        
-        cashOut: () => {
+
+        processGameResult: async (result) => {
           const { currentGame, betAmount } = get();
-          
+          if (!currentGame) return;
+
+          const timestamp = Date.now();
+          const gameResult: GameResult = {
+            ...result,
+            id: result.id || uuidv4(),
+            timestamp,
+          };
+
+          // Apply bonus for consecutive wins
+          const lastResult = get().lastResults[0];
+          const consecutiveWins = lastResult?.winAmount > 0
+            ? (get().lastResults.filter((r) => r.winAmount > 0).length + 1)
+            : 1;
+
+          const bonusMultiplier = consecutiveWins > 1
+            ? Math.min(1 + (consecutiveWins * 0.1), 2)
+            : 1; // Up to 2x bonus
+
+          const finalWinAmount = gameResult.winAmount * bonusMultiplier;
+
           set((state) => {
-            state.isPlaying = false;
-            
-            if (currentGame) {
-              // Return the bet amount if game was in progress
-              state.balance += betAmount;
-              
-              // Analytics event
-              trackEvent('game_cashed_out', { game: currentGame, bet: betAmount });
+            state.isProcessingResult = true;
+            state.lastWin = finalWinAmount;
+            state.balance += finalWinAmount;
+            state.currentGameResult = { ...gameResult, winAmount: finalWinAmount };
+
+            // Add to last results
+            state.lastResults.unshift({
+              ...gameResult,
+              winAmount: finalWinAmount,
+              multiplier: gameResult.multiplier
+                ? gameResult.multiplier * bonusMultiplier
+                : bonusMultiplier > 1
+                ? bonusMultiplier
+                : undefined,
+            });
+
+            // Trim results
+            if (state.lastResults.length > GAME_CONFIG.MAX_HISTORY) {
+              state.lastResults.pop();
             }
-            
-            state.currentGame = null;
-          });
-        },
-        
-        updateBalance: (amount) => {
-          if (typeof amount !== 'number' || isNaN(amount)) {
-            throw new Error('Invalid amount');
-          }
-          
-          set((state) => {
-            state.balance = Math.max(0, state.balance + amount);
-            
-            // Analytics event for significant balance changes
-            if (Math.abs(amount) >= 100) {
-              trackEvent('balance_updated', { amount, newBalance: state.balance });
+
+            // Add to game history
+            const historyItem: GameHistoryItem = {
+              id: uuidv4(),
+              game: currentGame,
+              timestamp,
+              bet: betAmount,
+              win: finalWinAmount,
+              result: {
+                id: gameResult.id,
+                winAmount: finalWinAmount,
+                multiplier: gameResult.multiplier
+                  ? gameResult.multiplier * bonusMultiplier
+                  : bonusMultiplier > 1
+                  ? bonusMultiplier
+                  : undefined,
+                winningLines: gameResult.winningLines,
+                symbols: gameResult.symbols,
+                bonusRounds: gameResult.bonusRounds,
+                freeSpins: gameResult.freeSpins,
+                isJackpot: gameResult.isJackpot,
+                gameState: gameResult.gameState,
+              },
+            };
+
+            state.gameHistory.unshift(historyItem);
+            if (state.gameHistory.length > GAME_CONFIG.MAX_HISTORY) {
+              state.gameHistory.pop();
+            }
+
+            // Track analytics
+            trackEvent('game_completed', {
+              game: currentGame,
+              bet: betAmount,
+              win: finalWinAmount,
+              isWin: finalWinAmount > 0,
+              multiplier: gameResult.multiplier,
+              bonusMultiplier: bonusMultiplier > 1 ? bonusMultiplier : undefined,
+              timestamp,
+            });
+
+            // Handle jackpot
+            if (finalWinAmount >= GAME_CONFIG.JACKPOT_THRESHOLD) {
+              trackEvent('jackpot_won', {
+                amount: finalWinAmount,
+                game: currentGame,
+                timestamp,
+              });
             }
           });
+
+          // Simulate processing delay
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          set({ isProcessingResult: false });
         },
-        
-        toggleAutoPlay: () => {
-          set((state) => {
-            state.autoPlay = !state.autoPlay;
-            trackEvent('autoplay_toggled', { enabled: state.autoPlay });
-          });
+
+        clearCurrentResult: () => {
+          set({ currentGameResult: null });
         },
-        
-        toggleSound: () => {
-          set((state) => {
-            state.soundEnabled = !state.soundEnabled;
-            trackEvent('sound_toggled', { enabled: state.soundEnabled });
-          });
+
+        isSessionActive: () => {
+          const { sessionStart } = get();
+          if (!sessionStart) return false;
+          return (Date.now() - sessionStart) < GAME_CONFIG.SESSION_TIMEOUT;
         },
-        
-        toggleQuickSpin: () => {
-          set((state) => {
-            state.quickSpin = !state.quickSpin;
-            trackEvent('quickspin_toggled', { enabled: state.quickSpin });
-          });
-        },
-        
-        resetGame: () => {
-          if (window.confirm('Are you sure you want to reset your game? This will clear all progress.')) {
-            trackEvent('game_reset');
-            set(initialState);
+
+        getCurrentStreak: () => {
+          const { lastResults } = get();
+          let streak = 0;
+          for (const result of lastResults) {
+            if (result.winAmount > 0) {
+              streak++;
+            } else {
+              break;
+            }
           }
+          return streak;
         },
-        
-        // Selectors
-        getLastGameResult: () => {
-          const { gameHistory } = get();
-          return gameHistory.length > 0 ? gameHistory[0] : null;
-        },
-        
-        getTotalWins: () => {
-          return get().gameHistory.reduce((total, game) => total + game.win, 0);
-        },
-        
-        getGamesPlayed: (gameType?: GameType) => {
-          const { gameHistory } = get();
-          return gameType 
-            ? gameHistory.filter(game => game.game === gameType).length 
-            : gameHistory.length;
-        },
-        
-        canPlaceBet: (amount?: number) => {
-          const { balance } = get();
-          const betAmount = amount ?? get().betAmount;
-          return balance >= betAmount && 
-                 betAmount >= GAME_CONFIG.MIN_BET && 
-                 betAmount <= GAME_CONFIG.MAX_BET;
-        },
+
+        // ... other actions and selectors ...
       })),
       {
         name: GAME_CONFIG.STORAGE_KEY,
-        version: 1,
+        version: 1, // Increment this when making breaking changes
         storage: createCustomStorage(),
         partialize: (state) => ({
           balance: state.balance,
           betAmount: state.betAmount,
           gameHistory: state.gameHistory,
-          autoPlay: state.autoPlay,
+          lastResults: state.lastResults,
           soundEnabled: state.soundEnabled,
           quickSpin: state.quickSpin,
+          autoPlay: state.autoPlay,
           lastPlayed: state.lastPlayed,
+          sessionStart: state.sessionStart,
         }),
         migrate: (persistedState: any, version) => {
-          // Handle migrations between versions if needed
+          console.log('Migrating from version', version);
+
+          // Migration from version 0 to 1 (initial version)
           if (version === 0) {
-            // Migrate from version 0 to 1
+            // Add any migration logic here
             return {
               ...persistedState,
-              lastPlayed: null, // New field
+              lastResults: [],
+              currentGameResult: null,
+              isProcessingResult: false,
+              sessionStart: null,
             };
           }
+
           return persistedState;
         },
       }
@@ -337,36 +368,94 @@ export const selectors = {
   soundEnabled: (state: GameState) => state.soundEnabled,
   quickSpin: (state: GameState) => state.quickSpin,
   lastPlayed: (state: GameState) => state.lastPlayed,
-  
+
   // Derived selectors
-  totalWagered: (state: GameState) => 
+  totalWagered: (state: GameState) =>
     state.gameHistory.reduce((total, game) => total + game.bet, 0),
-    
-  totalWins: (state: GameState) => 
+
+  totalWins: (state: GameState) =>
     state.gameHistory.reduce((total, game) => total + game.win, 0),
-    
+
   winRate: (state: GameState) => {
-    const wins = state.gameHistory.filter(g => g.win > 0).length;
-    return state.gameHistory.length > 0 
-      ? (wins / state.gameHistory.length) * 100 
+    const wins = state.gameHistory.filter((g) => g.win > 0).length;
+    return state.gameHistory.length > 0
+      ? (wins / state.gameHistory.length) * 100
       : 0;
   },
-  
-  canAffordBet: (amount: number) => (state: GameState) => 
+
+  canAffordBet: (amount: number) => (state: GameState) =>
     state.balance >= amount && amount >= GAME_CONFIG.MIN_BET,
 };
 
 // Analytics helper function
-function trackEvent(eventName: string, properties?: Record<string, unknown>) {
+function trackEvent(eventName: string, properties: Record<string, unknown> = {}) {
   if (typeof window === 'undefined') return;
-  
-  // Replace with your analytics implementation
+
   try {
-    console.log(`[Analytics] ${eventName}`, properties);
-    // Example: analytics.track(eventName, properties);
+    const eventData = {
+      event: eventName,
+      timestamp: Date.now(),
+      ...properties,
+    };
+
+    // In production, you would send this to your analytics service
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Analytics] ${eventName}`, eventData);
+    }
+
+    // Example: Send to analytics service
+    // analytics.track(eventName, eventData);
+
+    // Optionally store events in localStorage for debugging
+    try {
+      const events = JSON.parse(localStorage.getItem('analytics_events') || '[]');
+      events.push(eventData);
+      // Keep only the last 100 events
+      localStorage.setItem('analytics_events', JSON.stringify(events.slice(-100)));
+    } catch (e) {
+      console.error('Failed to store analytics event:', e);
+    }
   } catch (error) {
-    console.error('Analytics error:', error);
+    console.error('Failed to track event:', error);
   }
+}
+
+// Initialize analytics
+if (typeof window !== 'undefined') {
+  // Track session start
+  trackEvent('session_start', {
+    referrer: document.referrer,
+    userAgent: navigator.userAgent,
+    screen: {
+      width: window.screen.width,
+      height: window.screen.height,
+      colorDepth: window.screen.colorDepth,
+    },
+    language: navigator.language,
+  });
+
+  // Track page views
+  trackEvent('page_view', {
+    url: window.location.href,
+    path: window.location.pathname,
+    search: window.location.search,
+  });
+
+  // Track page visibility changes
+  document.addEventListener('visibilitychange', () => {
+    trackEvent('visibility_change', {
+      isVisible: !document.hidden,
+      timestamp: Date.now(),
+    });
+  });
+
+  // Track before unload
+  window.addEventListener('beforeunload', () => {
+    trackEvent('session_end', {
+      duration: Date.now() - performance.timeOrigin,
+      timestamp: Date.now(),
+    });
+  });
 }
 
 // Utility function to format currency
@@ -374,7 +463,6 @@ function trackEvent(eventName: string, properties?: Record<string, unknown>) {
 //   return new Intl.NumberFormat('en-US', {
 //     style: 'currency',
 //     currency: 'USD',
-//     minimumFractionDigits: 2,
 //   }).format(amount);
 // };
 
