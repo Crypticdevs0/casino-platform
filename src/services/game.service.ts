@@ -262,6 +262,19 @@ class GameService {
   }
 
   /**
+   * Get user's transactions, sorted by most recent first
+   */
+  async getUserTransactions(userId: string, limit: number = 200): Promise<TransactionModel[]> {
+    const transactions = await this.transactionOrm.getTransactionByUserId(userId);
+    const sorted = transactions.sort((a, b) => {
+      const aTime = parseInt(a.completed_at || a.create_time || '0', 10);
+      const bTime = parseInt(b.completed_at || b.create_time || '0', 10);
+      return bTime - aTime;
+    });
+    return sorted.slice(0, limit);
+  }
+
+  /**
    * Get session details for verification
    */
   async getSessionForVerification(sessionId: string): Promise<{

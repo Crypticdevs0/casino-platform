@@ -7,6 +7,7 @@ import { WalletConnect } from '@/components/WalletConnect';
 import { BalanceDisplay } from '@/components/BalanceDisplay';
 import { GameHistory } from '@/components/GameHistory';
 import { GameStats } from '@/components/GameStats';
+import { TransactionHistory } from '@/components/TransactionHistory';
 import { AutoBet, type AutoBetConfig } from '@/components/AutoBet';
 import { FairnessVerification } from '@/components/FairnessVerification';
 import { DepositDialog } from '@/components/DepositDialog';
@@ -26,9 +27,10 @@ import { ArcadePassModal } from '@/components/ArcadePassModal';
 import { WelcomeOfferModal } from '@/components/WelcomeOfferModal';
 import { Button } from '@/components/ui/button';
 import { useWallet, useWalletBalances, useUserWallets, useDeposit } from '@/hooks/useWallet';
-import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification } from '@/hooks/useGame';
+import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification, useUserTransactions } from '@/hooks/useGame';
 import { createConfetti } from '@/lib/confetti';
 import { Dice1, History, Shield, BarChart3, Zap, Cherry, Flame, Circle as CircleIcon, Target, Trophy, Award, Star } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const Route = createFileRoute("/")({
 	component: App,
@@ -59,6 +61,7 @@ function App() {
 	const { data: wallets = [] } = useUserWallets(currentUser?.id || null);
 	const { data: currentWallet } = useWalletBalances(currentUser?.id || null, selectedCurrency);
 	const { data: gameSessions = [] } = useGameSessions(currentUser?.id || null);
+	const { data: transactions = [] } = useUserTransactions(currentUser?.id || null, 200);
 	const { data: verificationData } = useSessionForVerification(selectedSessionId);
 
 	// Mutations
@@ -433,7 +436,14 @@ function App() {
 											</TabsTrigger>
 										</TabsList>
 
-										<Suspense fallback={<div>Loading...</div>}>
+										<Suspense
+											fallback={
+												<div className="space-y-4">
+													<Skeleton className="h-64 w-full" />
+													<Skeleton className="h-40 w-full" />
+												</div>
+											}
+										>
 											<TabsContent value="dice">
 												<DiceGame
 													onPlaceBet={handlePlaceBet}
@@ -484,41 +494,86 @@ function App() {
 													lastWon={lastSession?.status === 2}
 												/>
 											</TabsContent>
+
+											<TabsContent value="auto">
+												<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+													<DiceGame
+														onPlaceBet={handlePlaceBet}
+														isPlaying={placeBetMutation.isPending || isAutoBetting}
+														currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+														lastOutcome={lastSession?.outcome}
+														lastWon={lastSession?.status === 2}
+														winAmount={parseFloat(lastSession?.win_amount || '0')}
+													/>
+													<AutoBet
+														onStart={handleStartAutoBet}
+														onStop={handleStopAutoBet}
+														isRunning={isAutoBetting}
+														currentBalance={parseFloat(currentWallet?.available_balance || '0')}
+														currentBetCount={autoBetCount}
+														totalBets={autoBetConfig?.numberOfBets || 0}
+													/>
+												</div>
+											</TabsContent>
+
+											<TabsContent value="stats">
+												<div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+													<GameStats
+														sessions={gameSessions}
+														currency={selectedCurrency}
+													/>
+													<TransactionHistory
+														transactions={useUserTransactions()}
+														currency={selectedCurrency}
+													/>
+												</div>
+											</TabsContent>
+
+											<TabsContent value="history">
+												<GameHistory
+													sessions={gameSessions}
+													onVerify={handleVerifySession}
+												/>
+											</TabsContent>
+
+											<TabsContent value="verify">
+												<FairnessVerification
+													sessionId={selectedSessionId || undefined}
+													serverSeed={verificationData?.serverSeed.seed_value}
+													clientSeed={verificationData?.session.client_seed}
+													nonce={verificationData?.session.nonce}
+													expectedOutcome={verificationData?.session.outcome || undefined}
+												/>
+											</TabsContent>
+
+											<TabsContent value="leaderboard">
+												<Leaderboard />
+											</TabsContent>
+
+											<TabsContent value="achievements">
+												<Achievements />
+											</TabsContent>
+
+											<TabsContent value="missions">
+												<DailyMissions />
+											</TabsContent>
+
+											<TabsContent value="settings">
+												<SettingsPortal />
+											</TabsContent>
 										</Suspense>
 
-										<TabsContent value="auto">
-											<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-												<DiceGame
-													onPlaceBet={handlePlaceBet}
-													isPlaying={placeBetMutation.isPending || isAutoBetting}
-													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-													lastOutcome={lastSession?.outcome}
-													lastWon={lastSession?.status === 2}
-													winAmount={parseFloat(lastSession?.win_amount || '0')}
-												/>
-												<AutoBet
-													onStart={handleStartAutoBet}
-													onStop={handleStopAutoBet}
-													isRunning={isAutoBetting}
-													currentBalance={parseFloat(currentWallet?.available_balance || '0')}
-													currentBetCount={autoBetCount}
-													totalBets={autoBetConfig?.numberOfBets || 0}
-												/>
-											</div>
-										</TabsContent>
-
-										<TabsContent value="stats">
-											<GameStats
-												sessions={gameSessions}
-												currency={selectedCurrency}
+										<div className="space-y-6">
+											<LiveActivityFeed />
+											<RecentResults
+												results={gameSessions.map(s => ({
+													won: s.status === 2,
+													multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1'),
+												}))}
 											/>
-										</TabsContent>
-
-										<TabsContent value="history">
-											<GameHistory
-												sessions={gameSessions}
-												onVerify={handleVerifySession}
-											/>
+											<PlayerStats />
+										</div>
+									</motion.div>
 										</TabsContent>
 
 										<TabsContent value="verify">

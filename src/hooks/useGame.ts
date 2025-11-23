@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { gameService, type PlaceBetRequest } from '@/services/game.service';
+import { TransactionType } from '@/components/data/orm/orm_transaction';
 import { calculateOutcome, verifyOutcome } from '@/lib/provably-fair';
 
 /**
@@ -159,6 +160,35 @@ export function useInitializeSeeds() {
   return useMutation({
     mutationFn: async () => {
       return await gameService.initializeServerSeeds();
+    },
+  });
+}
+
+/**
+ * Hook to get a user's recent transactions
+ */
+export function useUserTransactions(userId: string | null, limit: number = 200) {
+  return useQuery({
+    queryKey: ['transactions', userId, limit],
+    queryFn: async () => {
+      if (!userId) return [];
+
+      const transactions = await gameService.getUserTransactions(userId, limit);
+
+      // Ensure a stable order: newest first
+      return transactions.sort((a, b) => {
+        const aTime = parseInt(a.completed_at || a.create_time || '0', 10);
+        const bTime = parseInt(b.completed_at || b.create_time || '0', 10);
+        return bTime - aTime;
+      });
+    },
+    enabled: !!userId,
+    refetchInterval: 1000,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+    meta: {
+      entity: 'transaction',
+      purpose: 'user-history',
     },
   });
 }
