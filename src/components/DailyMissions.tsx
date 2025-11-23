@@ -34,10 +34,10 @@ const missions = [
   },
 ];
 
-export function Missions() {
+export function DailyMissions() {
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Missions</h2>
+      <h2 className="text-2xl font-bold mb-4">Daily Missions</h2>
       <div className="space-y-4">
         {missions.map((mission, i) => (
           <div key={i} className="p-4 rounded-md bg-muted/50">
