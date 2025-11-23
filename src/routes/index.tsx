@@ -25,6 +25,8 @@ import { OnboardingTutorial } from '@/components/OnboardingTutorial';
 import { ResponsibleGamingModal } from '@/components/ResponsibleGamingModal';
 import { ArcadePassModal } from '@/components/ArcadePassModal';
 import { WelcomeOfferModal } from '@/components/WelcomeOfferModal';
+import { KycStatusBadge } from '@/components/KycStatusBadge';
+import { KycVerificationDialog } from '@/components/KycVerificationDialog';
 import { Button } from '@/components/ui/button';
 import { useWallet, useWalletBalances, useUserWallets, useDeposit } from '@/hooks/useWallet';
 import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification, useUserTransactions } from '@/hooks/useGame';
@@ -43,7 +45,7 @@ const PlinkoGame = lazy(() => import('@/components/PlinkoGame').then(m => ({ def
 const RouletteGame = lazy(() => import('@/components/RouletteGame').then(m => ({ default: m.RouletteGame })));
 
 function App() {
-	const { connectedAddress, currentUser, isConnected, connectWallet, disconnectWallet } = useWallet();
+	const { connectedAddress, currentUser, isConnected, connectWallet, disconnectWallet, setUserKycLevel } = useWallet();
 	const [selectedCurrency, setSelectedCurrency] = useState('ETH');
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [rgModalOpen, setRgModalOpen] = useState(false);
@@ -56,6 +58,7 @@ function App() {
 	const [autoBetCount, setAutoBetCount] = useState(0);
 	const autoBetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const previousSessionCountRef = useRef<number>(0);
+	const [kycDialogOpen, setKycDialogOpen] = useState(false);
 
 	// Queries
 	const { data: wallets = [] } = useUserWallets(currentUser?.id || null);
@@ -280,7 +283,16 @@ function App() {
 						</h1>
 					</div>
 					<div className="text-muted-foreground flex justify-between items-center">
-						<div id="player-level-display"><PlayerLevel onClick={() => setArcadePassModalOpen(true)} /></div>
+						<div className="flex items-center gap-3">
+							<div id="player-level-display"><PlayerLevel onClick={() => setArcadePassModalOpen(true)} /></div>
+							{currentUser && (
+								<KycStatusBadge
+									level={currentUser.kyc_level}
+									isBanned={currentUser.is_banned}
+									onClick={() => setKycDialogOpen(true)}
+								/>
+							)}
+						</div>
 						<div className="flex items-center gap-2">
 							<Button id="responsible-gaming-button" variant="outline" size="sm" onClick={() => setRgModalOpen(true)}>
 								<Shield className="w-4 h-4 mr-2" />
@@ -523,7 +535,7 @@ function App() {
 														currency={selectedCurrency}
 													/>
 													<TransactionHistory
-														transactions={useUserTransactions()}
+														transactions={transactions}
 														currency={selectedCurrency}
 													/>
 												</div>
@@ -559,7 +571,10 @@ function App() {
 											</TabsContent>
 
 											<TabsContent value="settings">
-												<SettingsPortal />
+												<SettingsPortal
+													kycLevel={currentUser?.kyc_level}
+													isBanned={currentUser?.is_banned}
+												/>
 											</TabsContent>
 										</Suspense>
 
@@ -574,33 +589,6 @@ function App() {
 											<PlayerStats />
 										</div>
 									</motion.div>
-										</TabsContent>
-
-										<TabsContent value="verify">
-											<FairnessVerification
-												sessionId={selectedSessionId || undefined}
-												serverSeed={verificationData?.serverSeed.seed_value}
-												clientSeed={verificationData?.session.client_seed}
-												nonce={verificationData?.session.nonce}
-												expectedOutcome={verificationData?.session.outcome || undefined}
-											/>
-										</TabsContent>
-
-										<TabsContent value="leaderboard">
-											<Leaderboard />
-										</TabsContent>
-
-										<TabsContent value="achievements">
-											<Achievements />
-										</TabsContent>
-
-										<TabsContent value="missions">
-											<DailyMissions />
-										</TabsContent>
-										<TabsContent value="settings">
-											<SettingsPortal />
-										</TabsContent>
-									</Tabs>
 								</div>
 								<div className="space-y-6">
 									<LiveActivityFeed />
@@ -617,8 +605,24 @@ function App() {
 					)}
 				</AnimatePresence>
 
+				{currentUser && (
+					<KycVerificationDialog
+						open={kycDialogOpen}
+						onOpenChange={setKycDialogOpen}
+						level={currentUser.kyc_level}
+						isBanned={currentUser.is_banned}
+						onUpgradeLevel={async (nextLevel) => {
+							await setUserKycLevel(nextLevel);
+						}}
+					/>
+				)}
+
 				<OnboardingTutorial />
-				<ResponsibleGamingModal isOpen={rgModalOpen} onClose={() => setRgModalOpen(false)} />
+				<ResponsibleGamingModal
+					isOpen={rgModalOpen}
+					onClose={() => setRgModalOpen(false)}
+					kycLevel={currentUser?.kyc_level}
+				/>
 				<ArcadePassModal isOpen={arcadePassModalOpen} onClose={() => setArcadePassModalOpen(false)} />
 				<WelcomeOfferModal isOpen={welcomeModalOpen} onClose={() => setWelcomeModalOpen(false)} />
 

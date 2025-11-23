@@ -40,12 +40,25 @@ export function useWallet() {
     queryClient.clear();
   }, [queryClient]);
 
+  const setUserKycLevel = useCallback(
+    async (level: number) => {
+      if (!currentUser) {
+        throw new Error('User not connected');
+      }
+      const updated = await authService.setUserKycLevel(currentUser.id, level);
+      setCurrentUser(updated);
+      return updated;
+    },
+    [currentUser],
+  );
+
   return {
     connectedAddress,
     currentUser,
     isConnected: !!connectedAddress,
     connectWallet,
     disconnectWallet,
+    setUserKycLevel,
   };
 }
 

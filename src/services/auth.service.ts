@@ -103,6 +103,25 @@ class AuthService {
     const users = await this.userOrm.getUserById(userId);
     return users.length > 0 ? users[0].kyc_level : 0;
   }
+
+  /**
+   * Update user KYC level
+   * In a real system this would be driven by an external KYC provider.
+   */
+  async setUserKycLevel(userId: string, level: number): Promise<UserModel> {
+    const users = await this.userOrm.getUserById(userId);
+    if (users.length === 0) {
+      throw new Error('User not found');
+    }
+
+    const user = users[0];
+    const [updated] = await this.userOrm.setUserById(userId, {
+      ...user,
+      kyc_level: level,
+    });
+
+    return updated;
+  }
 }
 
 export const authService = new AuthService();

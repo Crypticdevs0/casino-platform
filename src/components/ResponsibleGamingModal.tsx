@@ -15,9 +15,10 @@ import { ShieldCheck } from 'lucide-react';
 interface ResponsibleGamingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  kycLevel?: number;
 }
 
-export function ResponsibleGamingModal({ isOpen, onClose }: ResponsibleGamingModalProps) {
+export function ResponsibleGamingModal({ isOpen, onClose, kycLevel }: ResponsibleGamingModalProps) {
   // In a real app, these would be fetched and updated via an API
   const handleSaveChanges = () => {
     alert('Your limits have been saved.');
@@ -34,6 +35,11 @@ export function ResponsibleGamingModal({ isOpen, onClose }: ResponsibleGamingMod
           </DialogTitle>
           <DialogDescription>
             Manage your limits to ensure you play safely. Changes may take 24 hours to apply.
+            {typeof kycLevel === 'number' && (
+              <span className="block text-[11px] text-muted-foreground mt-1">
+                Current KYC level: {kycLevel}  Certain limit changes may require higher verification in a real deployment.
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="deposit">

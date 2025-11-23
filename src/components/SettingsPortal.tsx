@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShieldCheck, LogOut } from 'lucide-react';
+import { KycStatusBadge } from '@/components/KycStatusBadge';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -15,8 +16,12 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
   } from "@/components/ui/alert-dialog"
+interface SettingsPortalProps {
+	kycLevel?: number;
+	isBanned?: boolean;
+}
 
-export function SettingsPortal() {
+export function SettingsPortal({ kycLevel, isBanned }: SettingsPortalProps) {
 
   const handleSaveChanges = () => {
     alert('Your limits have been saved. Please note that any changes that make your limits more restrictive will be applied immediately, while any changes that make them less restrictive will take 24 hours to come into effect.');
@@ -25,8 +30,17 @@ export function SettingsPortal() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Settings & Responsible Gaming</CardTitle>
-        <CardDescription>Manage your account and play safely.</CardDescription>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <CardTitle>Settings & Responsible Gaming</CardTitle>
+            <CardDescription>Manage your account and play safely.</CardDescription>
+          </div>
+          {typeof kycLevel === 'number' && (
+            <div className="flex items-center gap-2 text-xs">
+              <KycStatusBadge level={kycLevel} isBanned={isBanned} />
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="limits" orientation="vertical" className="flex">
