@@ -15,7 +15,9 @@ import { useSound } from '@/hooks/useSound';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { CelebrationAnimation } from './CelebrationAnimation';
-import './DiceGame.css';
+import { DiceGameBackground } from './DiceGameBackground';
+import { diceTheme } from '@/themes/dice';
+import { BigWinAnimation } from './BigWinAnimation';
 
 interface DiceGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
@@ -88,27 +90,14 @@ export function DiceGame({
     haptic.light();
   };
 
-  const BigWinCelebration = () => (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {Array.from({ length: 20 }).map((_, i) => (
-            <motion.div
-                key={i}
-                className="absolute bg-cyan-400 h-2 w-2 rounded-full"
-                initial={{ x: `${Math.random() * 100}%`, y: '110%' }}
-                animate={{ y: '-10%', opacity: [1, 0] }}
-                transition={{ duration: Math.random() * 1 + 0.5, delay: Math.random() * 0.5, ease: "easeOut" }}
-            />
-        ))}
-    </div>
-);
-
 
   return (
-    <div className="space-y-6 dice-game-cyberpunk">
+    <div className="space-y-6 relative rounded-lg" style={{ color: diceTheme.colors.text }}>
+      <DiceGameBackground />
       {/* Game Visualization */}
-      <Card className="relative p-8 overflow-hidden bg-black/50 border-cyan-400/20 border-2 tech-grid-background">
+      <Card className="relative p-8 overflow-hidden border-2" style={{ backgroundColor: 'transparent', borderColor: diceTheme.colors.border }}>
         <CelebrationAnimation trigger={particleTrigger} winAmount={winAmount} />
-        {lastWon && multiplier > 10 && <BigWinCelebration />}
+        <BigWinAnimation show={!!(lastWon && multiplier > 10)} />
         {lastWon !== null && lastWon !== undefined && (
           <ParticleExplosion isWin={lastWon} trigger={particleTrigger} />
         )}
@@ -129,8 +118,8 @@ export function DiceGame({
                 transition={{ duration: 0.4, type: 'spring', stiffness: 200, damping: 20 }}
                 className="text-center"
               >
-                <p className="text-sm text-cyan-300 mb-1 font-mono">Roll Result</p>
-                <motion.p className="text-5xl font-bold mb-2 text-white font-mono glitch" data-text={lastOutcome.toFixed(2)}>
+                <p className="text-sm mb-1 font-mono" style={{ color: diceTheme.colors.secondary }}>Roll Result</p>
+                <motion.p className="text-5xl font-bold mb-2" style={{ color: diceTheme.colors.text, textShadow: diceTheme.styles.textShadow }}>
                   <PulseNumber value={lastOutcome} decimals={2} />
                 </motion.p>
                 <motion.div
@@ -142,8 +131,8 @@ export function DiceGame({
                   }`}
                 >
                   {lastWon && <Sparkles className="w-4 h-4" />}
-                  <span className={`text-lg font-semibold ${lastWon ? 'glitch-win' : ''}`} data-text={lastWon ? 'WIN DETECTED' : 'LOSS DETECTED'}>
-                    {lastWon ? 'WIN DETECTED' : 'LOSS DETECTED'}
+                  <span className={`text-lg font-semibold`}>
+                    {lastWon ? 'WIN' : 'LOSS'}
                   </span>
                 </motion.div>
               </motion.div>
@@ -151,7 +140,7 @@ export function DiceGame({
           </AnimatePresence>
         </div>
         <motion.div className="mt-6 relative" animate={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 10 }}>
-          <div className="h-4 bg-gradient-to-r from-cyan-400 to-pink-500 rounded-full relative shadow-lg">
+          <div className="h-4 rounded-full relative shadow-lg" style={{ background: `linear-gradient(to right, ${diceTheme.colors.primary}, ${diceTheme.colors.secondary})`}}>
             <motion.div className="absolute top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-full" style={{ left: `${target}%` }}
               animate={{ boxShadow: ['0 0 10px #fff', '0 0 20px #fff', '0 0 10px #fff'] }}
               transition={{ duration: 1.5, repeat: Infinity }}
@@ -161,34 +150,34 @@ export function DiceGame({
       </Card>
 
       {/* Bet Controls */}
-      <Card className="relative p-6 bg-black/50 border-pink-500/20 border-2">
+      <Card className="relative p-6 border-2" style={{ backgroundColor: 'transparent', borderColor: diceTheme.colors.border }}>
         <motion.div className="space-y-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div>
-            <Label htmlFor="betAmount" className="text-pink-400 font-mono">Bet Amount</Label>
-            <Input id="betAmount" type="number" value={betAmount} onChange={e => setBetAmount(e.target.value)} disabled={isPlaying} className="mt-1.5 bg-transparent text-white border-pink-400/50" />
+            <Label htmlFor="betAmount" style={{ color: diceTheme.colors.primary }}>Bet Amount</Label>
+            <Input id="betAmount" type="number" value={betAmount} onChange={e => setBetAmount(e.target.value)} disabled={isPlaying} className="mt-1.5 bg-transparent" style={{ borderColor: diceTheme.colors.border, color: diceTheme.colors.text }} />
           </div>
           <QuickBetControls betAmount={betAmount} onSetBetAmount={amount => { setBetAmount(amount); sound.playClick(); }} disabled={isPlaying} currentBalance={currentBalance} />
           <div>
-            <Label className="text-cyan-400 font-mono">Roll Under {target.toFixed(2)}</Label>
+            <Label style={{ color: diceTheme.colors.secondary }}>Roll Under {target.toFixed(2)}</Label>
             <Slider value={[target]} onValueChange={values => setTarget(values[0])} min={1} max={99} step={0.01} disabled={isPlaying} />
           </div>
-          <motion.div className="grid grid-cols-3 gap-4 p-4 bg-black/20 rounded-lg border border-white/10" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <motion.div className="grid grid-cols-3 gap-4 p-4 rounded-lg border" style={{ backgroundColor: 'rgba(0,0,0,0.2)', borderColor: diceTheme.colors.border }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground font-mono">Win Chance</p>
-              <p className="text-lg font-semibold text-white"><PulseNumber value={winChance} decimals={2} />%</p>
+              <p className="text-xs text-muted-foreground">Win Chance</p>
+              <p className="text-lg font-semibold"><PulseNumber value={winChance} decimals={2} />%</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground font-mono">Multiplier</p>
-              <p className="text-lg font-semibold text-white"><TrendingUp className="inline w-4 h-4 mr-1" /><PulseNumber value={multiplier} decimals={4} />×</p>
+              <p className="text-xs text-muted-foreground">Multiplier</p>
+              <p className="text-lg font-semibold"><TrendingUp className="inline w-4 h-4 mr-1" /><PulseNumber value={multiplier} decimals={4} />×</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground font-mono">Potential Win</p>
-              <p className="text-lg font-semibold text-green-400"><CountingNumber value={potentialWin} decimals={8} /></p>
+              <p className="text-xs text-muted-foreground">Potential Win</p>
+              <p className="text-lg font-semibold" style={{ color: diceTheme.colors.success }}><CountingNumber value={potentialWin} decimals={8} /></p>
             </div>
           </motion.div>
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground font-mono"><Keyboard className="w-3 h-3" /><span>Enter to bet • ↑↓ to adjust</span></div>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground"><Keyboard className="w-3 h-3" /><span>Enter to bet • ↑↓ to adjust</span></div>
           <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.02 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}>
-            <Button className="w-full cyberpunk-button" size="lg" onClick={handlePlaceBet} disabled={isPlaying}>
+            <Button className="w-full" size="lg" onClick={handlePlaceBet} disabled={isPlaying} style={{ backgroundColor: diceTheme.colors.primary, boxShadow: diceTheme.styles.boxShadow }}>
               <span className="relative z-10">{isPlaying ? 'ROLLING...' : 'PLACE BET'}</span>
             </Button>
           </motion.div>
