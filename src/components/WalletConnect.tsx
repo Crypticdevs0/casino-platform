@@ -6,7 +6,7 @@ import { Wallet, LogOut, AlertCircle, Loader2 } from 'lucide-react';
 interface WalletConnectProps {
   isConnected: boolean;
   connectedAddress: string | null;
-  onConnect: () => Promise<void>;
+  onConnect: () => Promise<any>;
   onDisconnect: () => void;
   isConnecting?: boolean;
   error?: string | null;
