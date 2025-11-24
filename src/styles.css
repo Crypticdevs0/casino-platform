@@ -185,8 +185,111 @@ code {
 	* {
 		@apply border-border outline-ring/50;
 	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
 	body {
 		@apply bg-background text-foreground;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+
+	/* ===== TYPOGRAPHY LAYERS ===== */
+	h1 {
+		@apply text-5xl font-bold tracking-tight;
+	}
+
+	h2 {
+		@apply text-4xl font-bold tracking-tight;
+	}
+
+	h3 {
+		@apply text-3xl font-bold tracking-tight;
+	}
+
+	h4 {
+		@apply text-2xl font-semibold;
+	}
+
+	h5 {
+		@apply text-xl font-semibold;
+	}
+
+	h6 {
+		@apply text-lg font-semibold;
+	}
+
+	p {
+		@apply text-base leading-relaxed;
+	}
+
+	small {
+		@apply text-sm text-muted-foreground;
+	}
+
+	code {
+		@apply bg-muted px-2 py-1 rounded text-sm font-mono;
+	}
+
+	pre {
+		@apply bg-muted p-4 rounded-lg overflow-auto;
+	}
+
+	/* ===== LINK STYLES ===== */
+	a {
+		@apply text-primary hover:text-primary/80 transition-colors duration-200;
+	}
+
+	a:focus-visible {
+		@apply outline-2 outline-offset-2 outline-ring rounded;
+	}
+
+	/* ===== FORM ELEMENTS ===== */
+	input:focus-visible,
+	textarea:focus-visible,
+	select:focus-visible {
+		@apply outline-2 outline-offset-2 outline-ring;
+	}
+
+	/* ===== SELECTION COLORS ===== */
+	::selection {
+		@apply bg-primary text-primary-foreground;
+	}
+
+	::-moz-selection {
+		@apply bg-primary text-primary-foreground;
+	}
+
+	/* ===== SCROLLBAR STYLING ===== */
+	::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	::-webkit-scrollbar-track {
+		@apply bg-background;
+	}
+
+	::-webkit-scrollbar-thumb {
+		@apply bg-border rounded-full hover:bg-muted;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		@apply bg-muted;
+	}
+
+	/* ===== ACCESSIBILITY ===== */
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
 	}
 }
 
