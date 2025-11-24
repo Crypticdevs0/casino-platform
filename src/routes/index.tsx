@@ -568,8 +568,8 @@ function App() {
 								</div>
 
 								<div>
-									<RecentResults sessions={gameSessions} currency={selectedCurrency} />
-									<PlayerStats currentUser={currentUser} gameSessions={gameSessions} />
+									<RecentResults results={gameSessions.map(s => ({ won: s.status === 2, multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1') }))} />
+									<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
 									<LiveActivityFeed gameSessions={gameSessions} currency={selectedCurrency} />
 								</div>
 							</motion.div>
