@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, CheckCircle2, XCircle, Copy } from 'lucide-react';
 import { useVerifyGame } from '@/hooks/useGame';
+import { displayError } from '@/utils/errorHandler';
 
 interface FairnessVerificationProps {
   sessionId?: string;
