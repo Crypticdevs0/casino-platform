@@ -11,12 +11,17 @@ import type { WalletModel } from '@/components/data/orm/orm_wallet';
 export function useWallet() {
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<UserModel | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Simulate wallet connection (in production, use Web3 library like ethers.js)
   const connectWallet = useCallback(async () => {
     // Generate a demo wallet address
     const demoAddress = `0x${Math.random().toString(16).substring(2, 42)}`;
+
+    setIsConnecting(true);
+    setConnectionError(null);
 
     try {
       const result = await authService.connectWallet(demoAddress);
@@ -28,8 +33,15 @@ export function useWallet() {
 
       return result;
     } catch (error) {
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Failed to connect wallet. Please check your network connection and try again.';
+
       console.error('Failed to connect wallet:', error);
+      setConnectionError(errorMessage);
       throw error;
+    } finally {
+      setIsConnecting(false);
     }
   }, [queryClient]);
 
@@ -37,6 +49,7 @@ export function useWallet() {
     await authService.disconnectWallet();
     setConnectedAddress(null);
     setCurrentUser(null);
+    setConnectionError(null);
     queryClient.clear();
   }, [queryClient]);
 
@@ -56,6 +69,8 @@ export function useWallet() {
     connectedAddress,
     currentUser,
     isConnected: !!connectedAddress,
+    isConnecting,
+    connectionError,
     connectWallet,
     disconnectWallet,
     setUserKycLevel,
