@@ -22,7 +22,7 @@ interface ResponsibleGamingModalProps {
 export function ResponsibleGamingModal({ isOpen, onClose, kycLevel }: ResponsibleGamingModalProps) {
   // In a real app, these would be fetched and updated via an API
   const handleSaveChanges = () => {
-    alert('Your limits have been saved.');
+    displaySuccess('Limits Saved', 'Your responsible gaming limits have been updated.');
     onClose();
   };
 
