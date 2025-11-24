@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ShieldCheck } from 'lucide-react';
+import { displaySuccess } from '@/utils/errorHandler';
 
 interface ResponsibleGamingModalProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ interface ResponsibleGamingModalProps {
 export function ResponsibleGamingModal({ isOpen, onClose, kycLevel }: ResponsibleGamingModalProps) {
   // In a real app, these would be fetched and updated via an API
   const handleSaveChanges = () => {
-    alert('Your limits have been saved.');
+    displaySuccess('Limits Saved', 'Your responsible gaming limits have been updated.');
     onClose();
   };
 

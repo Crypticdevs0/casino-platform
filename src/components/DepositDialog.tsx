@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Coins } from 'lucide-react';
+import { displayError } from '@/utils/errorHandler';
 
 interface DepositDialogProps {
   open: boolean;
@@ -30,7 +31,7 @@ export function DepositDialog({
 
   const handleDeposit = () => {
     if (parseFloat(amount) <= 0) {
-      alert('Please enter a valid amount');
+      displayError(new Error('Please enter a valid amount'), { type: 'validation' });
       return;
     }
     onDeposit(amount);

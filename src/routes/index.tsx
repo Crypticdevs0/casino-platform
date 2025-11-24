@@ -46,7 +46,7 @@ const PlinkoGame = lazy(() => import('@/components/PlinkoGame').then(m => ({ def
 const RouletteGame = lazy(() => import('@/components/RouletteGame').then(m => ({ default: m.RouletteGame })));
 
 function App() {
-	const { connectedAddress, currentUser, isConnected, connectWallet, disconnectWallet, setUserKycLevel } = useWallet();
+	const { connectedAddress, currentUser, isConnected, isConnecting, connectionError, connectWallet, disconnectWallet, setUserKycLevel } = useWallet();
 	const [selectedCurrency, setSelectedCurrency] = useState('ETH');
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [rgModalOpen, setRgModalOpen] = useState(false);
@@ -318,6 +318,8 @@ function App() {
 						connectedAddress={connectedAddress}
 						onConnect={connectWallet}
 						onDisconnect={disconnectWallet}
+						isConnecting={isConnecting}
+						error={connectionError}
 					/>
 				</motion.div>
 

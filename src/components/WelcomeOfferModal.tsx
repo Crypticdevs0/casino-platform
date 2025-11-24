@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Gift } from 'lucide-react';
+import { displaySuccess } from '@/utils/errorHandler';
 
 interface WelcomeOfferModalProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ interface WelcomeOfferModalProps {
 export function WelcomeOfferModal({ isOpen, onClose }: WelcomeOfferModalProps) {
 
   const handleClaimBonus = () => {
-    alert('Bonus claimed! It will be added to your next deposit.');
+    displaySuccess('Bonus Claimed!', 'It will be added to your next deposit.');
     onClose();
   };
 

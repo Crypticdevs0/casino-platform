@@ -37,6 +37,8 @@ import type {
 
 const BASE_URL = "https://api-production.creao.ai";
 const BASE_TIMEOUT = 30000;
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000;
 
 
 /**
@@ -47,6 +49,7 @@ export class DataStoreClient {
   private static instance: DataStoreClient | null = null;
   private host: string;
   private timeout: number;
+  private useLocalStorage: boolean = true;
 
   private constructor(timeout: number = BASE_TIMEOUT) {
     this.host = BASE_URL;
@@ -64,27 +67,97 @@ export class DataStoreClient {
     return DataStoreClient.instance;
   }
 
+  /**
+   * Get storage key for offline data
+   */
+  private getStorageKey(endpoint: string, data: unknown): string {
+    return `datastore:${endpoint}:${JSON.stringify(data)}`;
+  }
+
+  /**
+   * Retrieve data from localStorage
+   */
+  private getFromLocalStorage<T>(endpoint: string, data: unknown): T | null {
+    try {
+      const key = this.getStorageKey(endpoint, data);
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : null;
+    } catch (error) {
+      console.warn('Failed to retrieve from localStorage:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Store data in localStorage
+   */
+  private saveToLocalStorage(endpoint: string, data: unknown, response: unknown): void {
+    try {
+      const key = this.getStorageKey(endpoint, data);
+      localStorage.setItem(key, JSON.stringify(response));
+    } catch (error) {
+      console.warn('Failed to save to localStorage:', error);
+    }
+  }
+
+  /**
+   * Retry mechanism with exponential backoff
+   */
+  private async retryWithBackoff<T>(
+    fn: () => Promise<T>,
+    attemptNumber: number = 0
+  ): Promise<T> {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attemptNumber < MAX_RETRIES) {
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, attemptNumber);
+        console.warn(
+          `Request failed, retrying in ${delay}ms (attempt ${attemptNumber + 1}/${MAX_RETRIES}):`,
+          error
+        );
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return this.retryWithBackoff(fn, attemptNumber + 1);
+      }
+      throw error;
+    }
+  }
+
   private async request<T>(endpoint: string, data: unknown): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
     try {
-      const response = await authApi.post(
-        `${this.host}${endpoint}`,
-        data,
-        { signal: controller.signal }
-      );
+      const response = await this.retryWithBackoff(async () => {
+        return await authApi.post(
+          `${this.host}${endpoint}`,
+          data,
+          { signal: controller.signal }
+        );
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return response.json();
+      const result = await response.json();
+      this.saveToLocalStorage(endpoint, data, result);
+      return result;
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         console.error(`Request timeout after ${this.timeout} seconds`);
         throw new Error(`Request timeout after ${this.timeout} seconds`);
       }
+
+      if (error instanceof Error && error.message.includes("NetworkError")) {
+        console.warn('Network error detected, attempting to use cached data', error);
+        const cachedData = this.getFromLocalStorage<T>(endpoint, data);
+        if (cachedData) {
+          console.info('Using cached data from localStorage');
+          return cachedData;
+        }
+      }
+
       throw error;
     } finally {
       clearTimeout(timeoutId);

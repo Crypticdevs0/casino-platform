@@ -1,12 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Wallet, LogOut } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Wallet, LogOut, AlertCircle, Loader2 } from 'lucide-react';
 
 interface WalletConnectProps {
   isConnected: boolean;
   connectedAddress: string | null;
-  onConnect: () => void;
+  onConnect: () => Promise<any>;
   onDisconnect: () => void;
+  isConnecting?: boolean;
+  error?: string | null;
 }
 
 export function WalletConnect({
@@ -14,6 +17,8 @@ export function WalletConnect({
   connectedAddress,
   onConnect,
   onDisconnect,
+  isConnecting = false,
+  error = null,
 }: WalletConnectProps) {
   const formatAddress = (address: string) => {
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
@@ -41,6 +46,14 @@ export function WalletConnect({
 
   return (
     <Card className="p-6 text-center">
+      {error && (
+        <Alert className="mb-4 border-red-200 bg-red-50">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
         <Wallet className="w-8 h-8 text-primary" />
       </div>
@@ -48,9 +61,18 @@ export function WalletConnect({
       <p className="text-sm text-muted-foreground mb-4">
         Connect your crypto wallet to start playing
       </p>
-      <Button onClick={onConnect} size="lg">
-        <Wallet className="w-4 h-4 mr-2" />
-        Connect Wallet
+      <Button onClick={onConnect} size="lg" disabled={isConnecting}>
+        {isConnecting ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Connecting...
+          </>
+        ) : (
+          <>
+            <Wallet className="w-4 h-4 mr-2" />
+            Connect Wallet
+          </>
+        )}
       </Button>
     </Card>
   );
