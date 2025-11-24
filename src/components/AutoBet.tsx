@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Zap, StopCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { displayError } from '@/utils/errorHandler';
 
 interface AutoBetProps {
   onStart: (config: AutoBetConfig) => void;
@@ -43,7 +44,7 @@ export function AutoBet({ onStart, onStop, isRunning, currentBalance, currentBet
 
   const handleStart = () => {
     if (config.numberOfBets <= 0) {
-      alert('Number of bets must be greater than 0');
+      displayError(new Error('Number of bets must be greater than 0'), { type: 'validation' });
       return;
     }
     onStart(config);
