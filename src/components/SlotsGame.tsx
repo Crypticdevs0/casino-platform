@@ -12,6 +12,8 @@ import { useSound } from '@/hooks/useSound';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { displayError } from '@/utils/errorHandler';
+import { slotsTheme } from '@/themes/slots';
+import { SlotsGameBackground } from './SlotsGameBackground';
 
 interface SlotsGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
@@ -64,38 +66,50 @@ function calculateSlotsWin(symbols: typeof SYMBOLS[number][]): { won: boolean; m
 function SlotReel({
   symbol,
   isSpinning,
-  delay
+  delay,
+  lastWon,
 }: {
   symbol: typeof SYMBOLS[number];
   isSpinning: boolean;
   delay: number;
+  lastWon: boolean | null | undefined;
 }) {
   const [displaySymbol, setDisplaySymbol] = useState(symbol);
-  const [spinOffset, setSpinOffset] = useState(0);
 
   useEffect(() => {
     if (isSpinning) {
-      let offset = 0;
       const interval = setInterval(() => {
-        offset += 120; // Height of each symbol slot
-        setSpinOffset(offset);
-        // Randomly change symbol during spin
         setDisplaySymbol(SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]);
-      }, 50);
-
+      }, 100);
       return () => clearInterval(interval);
     } else {
-      setSpinOffset(0);
       setDisplaySymbol(symbol);
     }
   }, [isSpinning, symbol]);
 
   return (
-    <div className="relative w-24 h-32 bg-gradient-to-b from-gray-900 to-gray-800 rounded-lg border-4 border-yellow-500/50 overflow-hidden shadow-2xl">
-      {/* Reel glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/10 to-transparent pointer-events-none" />
-
-      {/* Symbol display */}
+    <motion.div
+      className="relative w-24 h-32 rounded-lg border-4 overflow-hidden"
+      animate={{
+        scale: !isSpinning && lastWon ? [1, 1.1, 1] : 1,
+      }}
+      transition={{
+        duration: 0.5,
+        delay: delay + 0.2,
+      }}
+      style={{
+        backgroundColor: slotsTheme.colors.card,
+        borderColor: slotsTheme.colors.primary,
+        boxShadow: slotsTheme.styles.boxShadow,
+      }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(to top, ${slotsTheme.colors.primary} -100%, transparent 30%)`,
+          opacity: 0.2,
+        }}
+      />
       <motion.div
         className="absolute inset-0 flex items-center justify-center"
         animate={{
@@ -225,58 +239,58 @@ export function SlotsGame({
   const potentialWin = parseFloat(betAmount) * 10; // Max multiplier for 777
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative" style={{ color: slotsTheme.colors.text }}>
+      <SlotsGameBackground />
       {/* Slots Machine */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-red-900/20 to-orange-900/20 border-2">
-        {/* Animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-orange-500/5 pointer-events-none">
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent"
-            animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
-          />
-        </div>
-
-        {/* Particle Effect */}
-        {lastWon !== null && lastWon !== undefined && (
-          <ParticleExplosion isWin={lastWon} trigger={particleTrigger} />
-        )}
+      <Card
+        className="relative p-8 overflow-hidden border-2"
+        style={{
+          backgroundColor: 'transparent',
+          borderColor: slotsTheme.colors.border,
+        }}
+      >
+        <ParticleExplosion isWin={!!lastWon} trigger={particleTrigger} />
 
         <div className="relative flex flex-col items-center justify-center space-y-6">
-          {/* Slots Title */}
           <motion.div
             className="flex items-center gap-3"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Cherry className="w-8 h-8 text-yellow-500" />
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 bg-clip-text text-transparent">
-              LUCKY 777
+            <Cherry className="w-8 h-8" style={{ color: slotsTheme.colors.primary }} />
+            <h2
+              className="text-3xl font-bold"
+              style={{
+                background: slotsTheme.styles.buttonGradient,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              CLASSIC VEGAS
             </h2>
-            <Cherry className="w-8 h-8 text-yellow-500" />
+            <Cherry className="w-8 h-8" style={{ color: slotsTheme.colors.primary }} />
           </motion.div>
 
-          {/* Reels Container */}
-          <div className="relative p-6 bg-gradient-to-b from-red-900/30 to-gray-900/50 rounded-2xl border-4 border-yellow-500 shadow-2xl">
+          <div
+            className="relative p-6 rounded-2xl border-4"
+            style={{
+              backgroundColor: slotsTheme.colors.card,
+              borderColor: slotsTheme.colors.primary,
+              boxShadow: slotsTheme.styles.boxShadow,
+            }}
+          >
             <motion.div
               className="flex gap-4 relative z-10"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20 }}
             >
-              <SlotReel symbol={reelSymbols[0]} isSpinning={isPlaying} delay={0} />
-              <SlotReel symbol={reelSymbols[1]} isSpinning={isPlaying} delay={0.1} />
-              <SlotReel symbol={reelSymbols[2]} isSpinning={isPlaying} delay={0.2} />
+              <SlotReel symbol={reelSymbols[0]} isSpinning={isPlaying} delay={0} lastWon={lastWon} />
+              <SlotReel symbol={reelSymbols[1]} isSpinning={isPlaying} delay={0.1} lastWon={lastWon} />
+              <SlotReel symbol={reelSymbols[2]} isSpinning={isPlaying} delay={0.2} lastWon={lastWon} />
             </motion.div>
-
-            {/* Corner decorations */}
-            <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-yellow-400" />
-            <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-yellow-400" />
-            <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-yellow-400" />
-            <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-yellow-400" />
           </div>
 
-          {/* Result Display */}
           <AnimatePresence mode="wait">
             {lastOutcome !== null && lastOutcome !== undefined && !isPlaying && showResult && (
               <motion.div
@@ -287,15 +301,16 @@ export function SlotsGame({
                 className="text-center"
               >
                 <motion.div
-                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-full ${
-                    lastWon ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
-                  } border-2 ${lastWon ? 'border-yellow-500' : 'border-red-500'}`}
-                  animate={{
-                    boxShadow: lastWon
-                      ? ['0 0 20px rgba(234, 179, 8, 0.5)', '0 0 40px rgba(234, 179, 8, 0.8)', '0 0 20px rgba(234, 179, 8, 0.5)']
-                      : 'none',
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2"
+                  style={{
+                    backgroundColor: lastWon ? 'rgba(212, 175, 55, 0.1)' : 'rgba(200, 29, 37, 0.1)',
+                    borderColor: lastWon ? slotsTheme.colors.primary : slotsTheme.colors.secondary,
+                    color: lastWon ? slotsTheme.colors.primary : slotsTheme.colors.secondary,
                   }}
-                  transition={{ duration: 1, repeat: lastWon ? Number.POSITIVE_INFINITY : 0 }}
+                  animate={{
+                    boxShadow: lastWon ? slotsTheme.styles.boxShadow : 'none',
+                  }}
+                  transition={{ duration: 1, repeat: lastWon ? Infinity : 0 }}
                 >
                   {lastWon && <Sparkles className="w-6 h-6" />}
                   <span className="text-2xl font-bold">
@@ -307,9 +322,12 @@ export function SlotsGame({
             )}
           </AnimatePresence>
 
-          {/* Paytable Preview */}
           <motion.div
-            className="grid grid-cols-4 gap-2 p-4 bg-black/30 rounded-lg border border-yellow-500/30"
+            className="grid grid-cols-4 gap-2 p-4 rounded-lg border"
+            style={{
+              backgroundColor: slotsTheme.colors.card,
+              borderColor: slotsTheme.colors.border,
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
@@ -317,26 +335,30 @@ export function SlotsGame({
             {SYMBOLS.slice(0, 4).map((symbol, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
                 <span className="text-2xl">{symbol.icon}</span>
-                <span className="text-xs text-yellow-400 font-bold">{symbol.multiplier}x</span>
+                <span className="text-xs font-bold" style={{ color: slotsTheme.colors.primary }}>
+                  {symbol.multiplier}x
+                </span>
               </div>
             ))}
           </motion.div>
         </div>
       </Card>
 
-      {/* Bet Controls */}
-      <Card className="relative p-6 overflow-hidden backdrop-blur-sm bg-card/95 border-2">
-        <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 via-transparent to-purple-500/5 pointer-events-none" />
-
+      <Card
+        className="relative p-6 border-2"
+        style={{
+          backgroundColor: 'transparent',
+          borderColor: slotsTheme.colors.border,
+        }}
+      >
         <motion.div
           className="space-y-6 relative"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          {/* Bet Amount */}
           <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
-            <Label htmlFor="slotsBetAmount">Bet Amount</Label>
+            <Label htmlFor="slotsBetAmount" style={{ color: slotsTheme.colors.primary }}>Bet Amount</Label>
             <Input
               id="slotsBetAmount"
               type="number"
@@ -345,7 +367,8 @@ export function SlotsGame({
               value={betAmount}
               onChange={(e) => setBetAmount(e.target.value)}
               disabled={isPlaying}
-              className="mt-1.5"
+              className="mt-1.5 bg-transparent"
+              style={{ borderColor: slotsTheme.colors.border, color: slotsTheme.colors.text }}
             />
             <div className="flex gap-2 mt-2">
               <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
@@ -357,6 +380,11 @@ export function SlotsGame({
                     setBetAmount((parseFloat(betAmount) / 2).toFixed(8));
                   }}
                   disabled={isPlaying}
+                  style={{
+                    backgroundColor: slotsTheme.colors.card,
+                    borderColor: slotsTheme.colors.border,
+                    color: slotsTheme.colors.text,
+                  }}
                 >
                   ½
                 </Button>
@@ -370,6 +398,11 @@ export function SlotsGame({
                     setBetAmount((parseFloat(betAmount) * 2).toFixed(8));
                   }}
                   disabled={isPlaying}
+                  style={{
+                    backgroundColor: slotsTheme.colors.card,
+                    borderColor: slotsTheme.colors.border,
+                    color: slotsTheme.colors.text,
+                  }}
                 >
                   2×
                 </Button>
@@ -383,6 +416,11 @@ export function SlotsGame({
                     setBetAmount(currentBalance.toFixed(8));
                   }}
                   disabled={isPlaying}
+                  style={{
+                    backgroundColor: slotsTheme.colors.card,
+                    borderColor: slotsTheme.colors.border,
+                    color: slotsTheme.colors.text,
+                  }}
                 >
                   Max
                 </Button>
@@ -390,7 +428,6 @@ export function SlotsGame({
             </div>
           </motion.div>
 
-          {/* Quick Bet Controls */}
           <QuickBetControls
             betAmount={betAmount}
             onSetBetAmount={(amount) => {
@@ -401,23 +438,26 @@ export function SlotsGame({
             currentBalance={currentBalance}
           />
 
-          {/* Stats */}
           <motion.div
-            className="grid grid-cols-2 gap-4 p-4 bg-gradient-to-r from-yellow-500/10 to-purple-500/10 rounded-lg border border-yellow-500/30"
+            className="grid grid-cols-2 gap-4 p-4 rounded-lg border"
+            style={{
+              backgroundColor: slotsTheme.colors.card,
+              borderColor: slotsTheme.colors.border,
+            }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
             <div>
               <p className="text-xs text-muted-foreground">Max Win (777)</p>
-              <p className="text-lg font-semibold flex items-center text-yellow-400">
+              <p className="text-lg font-semibold flex items-center" style={{ color: slotsTheme.colors.primary }}>
                 <Coins className="w-4 h-4 mr-1" />
                 <CountingNumber value={potentialWin} decimals={8} />
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Last Multiplier</p>
-              <p className="text-lg font-semibold flex items-center text-green-500">
+              <p className="text-lg font-semibold flex items-center" style={{ color: slotsTheme.colors.success }}>
                 <Flame className="w-4 h-4 mr-1" />
                 {lastWon && winMultiplier > 0 ? (
                   <PulseNumber value={winMultiplier} decimals={2} />
@@ -428,25 +468,31 @@ export function SlotsGame({
             </div>
           </motion.div>
 
-          {/* Keyboard Shortcuts Hint */}
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Keyboard className="w-3 h-3" />
             <span>Enter to spin</span>
           </div>
 
-          {/* Spin Button */}
           <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.02 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.98 }}>
             <Button
-              className="w-full relative overflow-hidden bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold text-lg"
+              className="w-full relative overflow-hidden text-black font-bold text-lg"
               size="lg"
               onClick={handlePlaceBet}
               disabled={isPlaying}
+              style={{
+                background: slotsTheme.styles.buttonGradient,
+                boxShadow: slotsTheme.styles.boxShadow,
+                color: slotsTheme.colors.text,
+              }}
             >
               {isPlaying && !prefersReducedMotion && (
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)',
+                  }}
                   animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                 />
               )}
               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -454,7 +500,7 @@ export function SlotsGame({
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: 'linear' }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                     >
                       <Cherry className="w-5 h-5" />
                     </motion.div>
