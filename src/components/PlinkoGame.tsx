@@ -11,6 +11,7 @@ import { QuickBetControls } from '@/components/QuickBetControls';
 import { useSound } from '@/hooks/useSound';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { displayError } from '@/utils/errorHandler';
 
 interface PlinkoGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
