@@ -18,7 +18,7 @@ interface WelcomeOfferModalProps {
 export function WelcomeOfferModal({ isOpen, onClose }: WelcomeOfferModalProps) {
 
   const handleClaimBonus = () => {
-    alert('Bonus claimed! It will be added to your next deposit.');
+    displaySuccess('Bonus Claimed!', 'It will be added to your next deposit.');
     onClose();
   };
 
