@@ -39,10 +39,8 @@ export default defineConfig(({ mode }) => {
         routes: 'src/pages',
       }),
       viteReact({
-        jsxRuntime: "automatic",
         babel: {
           plugins: [
-            ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }],
             'babel-plugin-macros',
           ],
         },
@@ -55,7 +53,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       basicSsl(),
       createHtmlPlugin({
-        minify: true,
+        minify: false,
         inject: {
           data: {
             title: env.VITE_APP_TITLE || 'Super Casino Platform',
