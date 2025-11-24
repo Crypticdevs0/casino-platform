@@ -483,7 +483,7 @@ code {
 	}
 
 	.card-interactive {
-		@apply card-elevated cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-primary/50;
+		@apply bg-card rounded-lg border border-border shadow-lg cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-primary/50;
 	}
 
 	/* Buttons base styles */
@@ -492,19 +492,19 @@ code {
 	}
 
 	.btn-primary {
-		@apply btn-base bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/75;
+		@apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 min-w-[44px] min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/75;
 	}
 
 	.btn-secondary {
-		@apply btn-base bg-secondary text-secondary-foreground hover:bg-secondary/90 active:bg-secondary/75;
+		@apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 min-w-[44px] min-h-[44px] bg-secondary text-secondary-foreground hover:bg-secondary/90 active:bg-secondary/75;
 	}
 
 	.btn-outline {
-		@apply btn-base border border-border hover:border-primary hover:text-primary;
+		@apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 min-w-[44px] min-h-[44px] border border-border hover:border-primary hover:text-primary;
 	}
 
 	.btn-ghost {
-		@apply btn-base hover:bg-muted;
+		@apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 min-w-[44px] min-h-[44px] hover:bg-muted;
 	}
 
 	/* Badges */
@@ -513,19 +513,27 @@ code {
 	}
 
 	.badge-primary {
-		@apply badge bg-primary/10 text-primary;
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+		background-color: rgba(99, 102, 241, 0.1);
+		color: var(--primary);
 	}
 
 	.badge-success {
-		@apply badge bg-success/10 text-success;
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+		background-color: rgba(34, 197, 94, 0.1);
+		color: var(--success);
 	}
 
 	.badge-warning {
-		@apply badge bg-warning/10 text-warning;
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+		background-color: rgba(245, 158, 11, 0.1);
+		color: var(--warning);
 	}
 
 	.badge-danger {
-		@apply badge bg-danger/10 text-danger;
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+		background-color: rgba(239, 68, 68, 0.1);
+		color: var(--destructive);
 	}
 
 	/* Status indicators */
@@ -534,19 +542,22 @@ code {
 	}
 
 	.status-online {
-		@apply status-indicator bg-success;
+		@apply inline-block w-2 h-2 rounded-full;
+		background-color: var(--success);
 	}
 
 	.status-offline {
-		@apply status-indicator bg-muted;
+		@apply inline-block w-2 h-2 rounded-full bg-muted;
 	}
 
 	.status-away {
-		@apply status-indicator bg-warning;
+		@apply inline-block w-2 h-2 rounded-full;
+		background-color: var(--warning);
 	}
 
 	.status-busy {
-		@apply status-indicator bg-danger;
+		@apply inline-block w-2 h-2 rounded-full;
+		background-color: var(--destructive);
 	}
 
 	/* Input fields */
@@ -568,19 +579,19 @@ code {
 	}
 
 	.text-success {
-		@apply text-success;
+		color: var(--success);
 	}
 
 	.text-warning {
-		@apply text-warning;
+		color: var(--warning);
 	}
 
 	.text-danger {
-		@apply text-danger;
+		color: var(--destructive);
 	}
 
 	.text-info {
-		@apply text-info;
+		color: var(--info);
 	}
 
 	/* Flex utilities */

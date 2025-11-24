@@ -11,7 +11,14 @@ module.exports = {
       'lg': '1024px',
       'xl': '1280px',
     },
-    extend: {},
+    extend: {
+      colors: {
+        success: 'var(--success)',
+        warning: 'var(--warning)',
+        danger: 'var(--destructive)',
+        info: 'var(--info)',
+      }
+    },
   },
   plugins: [],
 }
