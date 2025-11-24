@@ -542,7 +542,8 @@ code {
 	}
 
 	.status-online {
-		@apply inline-block w-2 h-2 rounded-full bg-success;
+		@apply inline-block w-2 h-2 rounded-full;
+		background-color: var(--success);
 	}
 
 	.status-offline {
@@ -550,11 +551,13 @@ code {
 	}
 
 	.status-away {
-		@apply inline-block w-2 h-2 rounded-full bg-warning;
+		@apply inline-block w-2 h-2 rounded-full;
+		background-color: var(--warning);
 	}
 
 	.status-busy {
-		@apply inline-block w-2 h-2 rounded-full bg-danger;
+		@apply inline-block w-2 h-2 rounded-full;
+		background-color: var(--destructive);
 	}
 
 	/* Input fields */
@@ -576,19 +579,19 @@ code {
 	}
 
 	.text-success {
-		@apply text-success;
+		color: var(--success);
 	}
 
 	.text-warning {
-		@apply text-warning;
+		color: var(--warning);
 	}
 
 	.text-danger {
-		@apply text-danger;
+		color: var(--destructive);
 	}
 
 	.text-info {
-		@apply text-info;
+		color: var(--info);
 	}
 
 	/* Flex utilities */
