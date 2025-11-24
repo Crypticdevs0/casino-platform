@@ -2,24 +2,39 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, TrendingUp, DollarSign } from 'lucide-react';
 
+interface LeaderboardEntry {
+  rank: number;
+  user: string;
+  value: string;
+}
+
+interface LeaderboardData {
+  highestMultiplier: LeaderboardEntry[];
+  wageredVolume: LeaderboardEntry[];
+}
+
 // Mock data for now
-const generateLeaderboard = () => ({
+const generateLeaderboard = (): LeaderboardData => ({
   highestMultiplier: Array.from({ length: 5 }, (_, i) => ({
     rank: i + 1,
     user: `User${Math.floor(Math.random() * 9000) + 1000}`,
     value: (Math.random() * 1000).toFixed(2),
-  })).sort((a,b) => b.value - a.value),
+  })).sort((a, b) => parseFloat(b.value) - parseFloat(a.value)),
   wageredVolume: Array.from({ length: 5 }, (_, i) => ({
     rank: i + 1,
     user: `User${Math.floor(Math.random() * 9000) + 1000}`,
     value: (Math.random() * 100).toFixed(4),
-  })).sort((a,b) => b.value - a.value),
+  })).sort((a, b) => parseFloat(b.value) - parseFloat(a.value)),
 });
 
+interface LeaderboardTableProps {
+  data: LeaderboardEntry[];
+  unit: string;
+}
 
-const LeaderboardTable = ({ data, unit }) => (
+const LeaderboardTable = ({ data, unit }: LeaderboardTableProps) => (
     <div className="space-y-2">
-      {data.map((player) => (
+      {data.map((player: LeaderboardEntry) => (
         <div
           key={player.rank}
           className="flex items-center justify-between p-2 rounded-md bg-muted/50"
@@ -75,7 +90,11 @@ export function Leaderboard() {
   );
 }
 
-const LeaderboardCategory = ({ data }) => (
+interface LeaderboardCategoryProps {
+  data: LeaderboardData;
+}
+
+const LeaderboardCategory = ({ data }: LeaderboardCategoryProps) => (
     <div className="space-y-6">
         <div>
             <h3 className="font-semibold mb-2 flex items-center"><TrendingUp className="w-4 h-4 mr-2" />Highest Multiplier</h3>

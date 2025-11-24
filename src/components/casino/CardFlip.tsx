@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -77,7 +77,7 @@ export function CardFlip({
       scale: 1,
       transition: {
         duration: flipSpeed,
-        ease: [0.4, 0.0, 0.2, 1],
+        ease: 'easeInOut' as const,
       },
     },
     back: {
@@ -86,7 +86,7 @@ export function CardFlip({
       scale: 0.95,
       transition: {
         duration: flipSpeed,
-        ease: [0.4, 0.0, 0.2, 1],
+        ease: 'easeInOut' as const,
       },
     },
   };
