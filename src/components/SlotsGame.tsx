@@ -12,7 +12,6 @@ import { useSound } from '@/hooks/useSound';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { displayError } from '@/utils/errorHandler';
-import { slotsTheme } from '@/themes/slots';
 import { SlotsGameBackground } from './SlotsGameBackground';
 
 interface SlotsGameProps {
@@ -98,15 +97,15 @@ function SlotReel({
         delay: delay + 0.2,
       }}
       style={{
-        backgroundColor: slotsTheme.colors.card,
-        borderColor: slotsTheme.colors.primary,
-        boxShadow: slotsTheme.styles.boxShadow,
+        backgroundColor: 'var(--card)',
+        borderColor: 'var(--primary)',
+        boxShadow: 'var(--style-boxShadow)',
       }}
     >
       <div
         className="absolute inset-0"
         style={{
-          background: `linear-gradient(to top, ${slotsTheme.colors.primary} -100%, transparent 30%)`,
+          background: `linear-gradient(to top, var(--primary) -100%, transparent 30%)`,
           opacity: 0.2,
         }}
       />
@@ -148,7 +147,7 @@ function SlotReel({
           ease: 'linear',
         }}
       />
-    </div>
+    </motion.div>
   );
 }
 
@@ -239,14 +238,14 @@ export function SlotsGame({
   const potentialWin = parseFloat(betAmount) * 10; // Max multiplier for 777
 
   return (
-    <div className="space-y-6 relative" style={{ color: slotsTheme.colors.text }}>
+    <div className="space-y-6 relative" style={{ color: 'var(--foreground)' }}>
       <SlotsGameBackground />
       {/* Slots Machine */}
       <Card
         className="relative p-8 overflow-hidden border-2"
         style={{
           backgroundColor: 'transparent',
-          borderColor: slotsTheme.colors.border,
+          borderColor: 'var(--border)',
         }}
       >
         <ParticleExplosion isWin={!!lastWon} trigger={particleTrigger} />
@@ -257,26 +256,26 @@ export function SlotsGame({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Cherry className="w-8 h-8" style={{ color: slotsTheme.colors.primary }} />
+            <Cherry className="w-8 h-8" style={{ color: 'var(--primary)' }} />
             <h2
               className="text-3xl font-bold"
               style={{
-                background: slotsTheme.styles.buttonGradient,
+                background: 'var(--style-buttonGradient)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
             >
               CLASSIC VEGAS
             </h2>
-            <Cherry className="w-8 h-8" style={{ color: slotsTheme.colors.primary }} />
+            <Cherry className="w-8 h-8" style={{ color: 'var(--primary)' }} />
           </motion.div>
 
           <div
             className="relative p-6 rounded-2xl border-4"
             style={{
-              backgroundColor: slotsTheme.colors.card,
-              borderColor: slotsTheme.colors.primary,
-              boxShadow: slotsTheme.styles.boxShadow,
+              backgroundColor: 'var(--card)',
+              borderColor: 'var(--primary)',
+              boxShadow: 'var(--style-boxShadow)',
             }}
           >
             <motion.div
@@ -304,11 +303,11 @@ export function SlotsGame({
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2"
                   style={{
                     backgroundColor: lastWon ? 'rgba(212, 175, 55, 0.1)' : 'rgba(200, 29, 37, 0.1)',
-                    borderColor: lastWon ? slotsTheme.colors.primary : slotsTheme.colors.secondary,
-                    color: lastWon ? slotsTheme.colors.primary : slotsTheme.colors.secondary,
+                    borderColor: lastWon ? 'var(--primary)' : 'var(--secondary)',
+                    color: lastWon ? 'var(--primary)' : 'var(--secondary)',
                   }}
                   animate={{
-                    boxShadow: lastWon ? slotsTheme.styles.boxShadow : 'none',
+                    boxShadow: lastWon ? 'var(--style-boxShadow)' : 'none',
                   }}
                   transition={{ duration: 1, repeat: lastWon ? Infinity : 0 }}
                 >
@@ -325,8 +324,8 @@ export function SlotsGame({
           <motion.div
             className="grid grid-cols-4 gap-2 p-4 rounded-lg border"
             style={{
-              backgroundColor: slotsTheme.colors.card,
-              borderColor: slotsTheme.colors.border,
+              backgroundColor: 'var(--card)',
+              borderColor: 'var(--border)',
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -335,7 +334,7 @@ export function SlotsGame({
             {SYMBOLS.slice(0, 4).map((symbol, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
                 <span className="text-2xl">{symbol.icon}</span>
-                <span className="text-xs font-bold" style={{ color: slotsTheme.colors.primary }}>
+                <span className="text-xs font-bold" style={{ color: 'var(--primary)' }}>
                   {symbol.multiplier}x
                 </span>
               </div>
@@ -348,7 +347,7 @@ export function SlotsGame({
         className="relative p-6 border-2"
         style={{
           backgroundColor: 'transparent',
-          borderColor: slotsTheme.colors.border,
+          borderColor: 'var(--border)',
         }}
       >
         <motion.div
@@ -358,7 +357,7 @@ export function SlotsGame({
           transition={{ delay: 0.1 }}
         >
           <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.01 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
-            <Label htmlFor="slotsBetAmount" style={{ color: slotsTheme.colors.primary }}>Bet Amount</Label>
+            <Label htmlFor="slotsBetAmount" style={{ color: 'var(--primary)' }}>Bet Amount</Label>
             <Input
               id="slotsBetAmount"
               type="number"
@@ -368,7 +367,7 @@ export function SlotsGame({
               onChange={(e) => setBetAmount(e.target.value)}
               disabled={isPlaying}
               className="mt-1.5 bg-transparent"
-              style={{ borderColor: slotsTheme.colors.border, color: slotsTheme.colors.text }}
+              style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
             />
             <div className="flex gap-2 mt-2">
               <motion.div whileHover={{ scale: prefersReducedMotion ? 1 : 1.05 }} whileTap={{ scale: prefersReducedMotion ? 1 : 0.95 }}>
@@ -381,9 +380,9 @@ export function SlotsGame({
                   }}
                   disabled={isPlaying}
                   style={{
-                    backgroundColor: slotsTheme.colors.card,
-                    borderColor: slotsTheme.colors.border,
-                    color: slotsTheme.colors.text,
+                    backgroundColor: 'var(--card)',
+                    borderColor: 'var(--border)',
+                    color: 'var(--foreground)',
                   }}
                 >
                   ½
@@ -399,9 +398,9 @@ export function SlotsGame({
                   }}
                   disabled={isPlaying}
                   style={{
-                    backgroundColor: slotsTheme.colors.card,
-                    borderColor: slotsTheme.colors.border,
-                    color: slotsTheme.colors.text,
+                    backgroundColor: 'var(--card)',
+                    borderColor: 'var(--border)',
+                    color: 'var(--foreground)',
                   }}
                 >
                   2×
@@ -417,9 +416,9 @@ export function SlotsGame({
                   }}
                   disabled={isPlaying}
                   style={{
-                    backgroundColor: slotsTheme.colors.card,
-                    borderColor: slotsTheme.colors.border,
-                    color: slotsTheme.colors.text,
+                    backgroundColor: 'var(--card)',
+                    borderColor: 'var(--border)',
+                    color: 'var(--foreground)',
                   }}
                 >
                   Max
@@ -441,8 +440,8 @@ export function SlotsGame({
           <motion.div
             className="grid grid-cols-2 gap-4 p-4 rounded-lg border"
             style={{
-              backgroundColor: slotsTheme.colors.card,
-              borderColor: slotsTheme.colors.border,
+              backgroundColor: 'var(--card)',
+              borderColor: 'var(--border)',
             }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -450,14 +449,14 @@ export function SlotsGame({
           >
             <div>
               <p className="text-xs text-muted-foreground">Max Win (777)</p>
-              <p className="text-lg font-semibold flex items-center" style={{ color: slotsTheme.colors.primary }}>
+              <p className="text-lg font-semibold flex items-center" style={{ color: 'var(--primary)' }}>
                 <Coins className="w-4 h-4 mr-1" />
                 <CountingNumber value={potentialWin} decimals={8} />
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Last Multiplier</p>
-              <p className="text-lg font-semibold flex items-center" style={{ color: slotsTheme.colors.success }}>
+              <p className="text-lg font-semibold flex items-center" style={{ color: 'var(--success)' }}>
                 <Flame className="w-4 h-4 mr-1" />
                 {lastWon && winMultiplier > 0 ? (
                   <PulseNumber value={winMultiplier} decimals={2} />
@@ -480,9 +479,9 @@ export function SlotsGame({
               onClick={handlePlaceBet}
               disabled={isPlaying}
               style={{
-                background: slotsTheme.styles.buttonGradient,
-                boxShadow: slotsTheme.styles.boxShadow,
-                color: slotsTheme.colors.text,
+                background: 'var(--style-buttonGradient)',
+                boxShadow: 'var(--style-boxShadow)',
+                color: 'var(--foreground)',
               }}
             >
               {isPlaying && !prefersReducedMotion && (

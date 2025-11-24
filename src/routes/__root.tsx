@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { FloatingBanner } from "@/components/FloatingBanner";
+import { ThemeContextProvider } from "@/contexts/ThemeContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
@@ -11,15 +12,17 @@ export const Route = createRootRoute({
 
 function Root() {
 	return (
-		<ThemeProvider>
-			<div className="flex flex-col min-h-screen">
-				<ErrorBoundary tagName="main" className="flex-1">
-					<Outlet />
-				</ErrorBoundary>
+		<ThemeContextProvider>
+			<ThemeProvider>
+				<div className="flex flex-col min-h-screen">
+					<ErrorBoundary tagName="main" className="flex-1">
+						<Outlet />
+					</ErrorBoundary>
 				<Toaster richColors position="top-right" />
 				<TanStackRouterDevtools position="bottom-right" />
 				<FloatingBanner position="bottom-left" />
-			</div>
-		</ThemeProvider>
+				</div>
+			</ThemeProvider>
+		</ThemeContextProvider>
 	);
 }
