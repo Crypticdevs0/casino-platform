@@ -416,14 +416,14 @@ function App() {
 
 							{/* Main Content */}
 							<motion.div
-								className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+								className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-5 gap-6"
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.4, delay: 0.3 }}
 							>
-								<div className="lg:col-span-2">
+								<div className="lg:col-span-3 xl:col-span-4">
 									<Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-										<TabsList id="main-game-tabs" className="grid w-full grid-cols-3 sm:grid-cols-9 gap-1">
+										<TabsList id="main-game-tabs" className="grid w-full grid-cols-3 sm:grid-cols-9 md:grid-cols-12 gap-1">
 											<TabsTrigger value="dice" className="text-xs">
 												<Dice1 className="w-4 h-4 mr-1" />
 												<span className="hidden sm:inline">Dice</span>
@@ -605,7 +605,7 @@ function App() {
 									</Tabs>
 								</div>
 
-								<div>
+								<div className="lg:sticky lg:top-6 space-y-6">
 									<RecentResults results={gameSessions.map(s => ({ won: s.status === 2, multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1') }))} />
 									<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
 									<LiveActivityFeed gameSessions={gameSessions} currency={selectedCurrency} />

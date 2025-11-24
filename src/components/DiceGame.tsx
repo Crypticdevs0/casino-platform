@@ -91,11 +91,12 @@ export function DiceGame({
 
 
   return (
-    <div className="space-y-6 relative rounded-lg" style={{ color: 'var(--foreground)' }}>
-      <DiceGameBackground />
-      {/* Game Visualization */}
-      <Card className="relative p-8 overflow-hidden border-2" style={{ backgroundColor: 'transparent', borderColor: 'var(--border)' }}>
-        <CelebrationAnimation trigger={particleTrigger} winAmount={winAmount} />
+    <div className="grid md:grid-cols-2 gap-6" style={{ color: 'var(--foreground)' }}>
+      <div className="space-y-6 relative rounded-lg">
+        <DiceGameBackground />
+        {/* Game Visualization */}
+        <Card className="relative p-4 md:p-8 overflow-hidden border-2" style={{ backgroundColor: 'transparent', borderColor: 'var(--border)' }}>
+          <CelebrationAnimation trigger={particleTrigger} winAmount={winAmount} />
         <BigWinAnimation show={!!(lastWon && multiplier > 10)} />
         {lastWon !== null && lastWon !== undefined && (
           <ParticleExplosion isWin={lastWon} trigger={particleTrigger} />
@@ -183,5 +184,6 @@ export function DiceGame({
         </motion.div>
       </Card>
     </div>
+  </div>
   );
 }

@@ -253,10 +253,11 @@ export function RouletteGame({
   const potentialWin = parseFloat(betAmount) * multiplier;
 
   return (
-    <div className="space-y-6">
-      {/* Roulette Wheel */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-teal-900/20 to-cyan-900/20 border-2">
-        {/* Animated background */}
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="space-y-6">
+        {/* Roulette Wheel */}
+        <Card className="relative p-4 md:p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-teal-900/20 to-cyan-900/20 border-2">
+          {/* Animated background */}
         <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-transparent to-cyan-500/5 pointer-events-none">
           <motion.div
             className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-500/10 via-transparent to-transparent"
@@ -500,5 +501,6 @@ export function RouletteGame({
         </motion.div>
       </Card>
     </div>
+  </div>
   );
 }

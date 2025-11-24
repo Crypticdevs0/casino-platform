@@ -238,17 +238,18 @@ export function SlotsGame({
   const potentialWin = parseFloat(betAmount) * 10; // Max multiplier for 777
 
   return (
-    <div className="space-y-6 relative" style={{ color: 'var(--foreground)' }}>
-      <SlotsGameBackground />
-      {/* Slots Machine */}
-      <Card
-        className="relative p-8 overflow-hidden border-2"
-        style={{
-          backgroundColor: 'transparent',
-          borderColor: 'var(--border)',
-        }}
-      >
-        <ParticleExplosion isWin={!!lastWon} trigger={particleTrigger} />
+    <div className="grid md:grid-cols-2 gap-6" style={{ color: 'var(--foreground)' }}>
+      <div className="space-y-6 relative">
+        <SlotsGameBackground />
+        {/* Slots Machine */}
+        <Card
+          className="relative p-4 md:p-8 overflow-hidden border-2"
+          style={{
+            backgroundColor: 'transparent',
+            borderColor: 'var(--border)',
+          }}
+        >
+          <ParticleExplosion isWin={!!lastWon} trigger={particleTrigger} />
 
         <div className="relative flex flex-col items-center justify-center space-y-6">
           <motion.div
@@ -517,5 +518,6 @@ export function SlotsGame({
         </motion.div>
       </Card>
     </div>
+  </div>
   );
 }
