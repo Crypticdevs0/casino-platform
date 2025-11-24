@@ -224,12 +224,12 @@ export function PlinkoGame({
 
   const handlePlaceBet = useCallback(() => {
     if (parseFloat(betAmount) <= 0) {
-      alert('Please enter a valid bet amount');
+      displayError(new Error('Please enter a valid bet amount'), { type: 'validation' });
       return;
     }
 
     if (parseFloat(betAmount) > currentBalance) {
-      alert('Insufficient balance');
+      displayError(new Error('Insufficient balance'), { type: 'payment' });
       return;
     }
 
