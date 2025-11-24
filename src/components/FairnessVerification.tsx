@@ -34,7 +34,7 @@ export function FairnessVerification({
 
   const handleVerify = () => {
     if (!serverSeed || !clientSeed || !expectedOutcome) {
-      alert('Please fill in all fields');
+      displayError(new Error('Please fill in all fields'), { type: 'validation' });
       return;
     }
 
