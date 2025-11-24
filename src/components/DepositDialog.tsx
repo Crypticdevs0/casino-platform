@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Coins } from 'lucide-react';
+import { displayError } from '@/utils/errorHandler';
 
 interface DepositDialogProps {
   open: boolean;
