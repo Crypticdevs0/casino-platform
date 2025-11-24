@@ -31,7 +31,7 @@ export function DepositDialog({
 
   const handleDeposit = () => {
     if (parseFloat(amount) <= 0) {
-      alert('Please enter a valid amount');
+      displayError(new Error('Please enter a valid amount'), { type: 'validation' });
       return;
     }
     onDeposit(amount);
