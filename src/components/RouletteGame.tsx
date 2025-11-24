@@ -90,9 +90,9 @@ function RouletteWheel({
           const angle = (index * 360) / ROULETTE_NUMBERS.length;
           const nextAngle = ((index + 1) * 360) / ROULETTE_NUMBERS.length;
 
-          let bgColor = '#1f2937'; // black
-          if (number.color === 'red') bgColor = '#dc2626';
-          if (number.color === 'green') bgColor = '#16a34a';
+          let bgColor = 'var(--secondary)'; // black
+          if (number.color === 'red') bgColor = 'var(--destructive)';
+          if (number.color === 'green') bgColor = 'var(--success)';
 
           return (
             <div

@@ -23,21 +23,16 @@ interface PlinkoGameProps {
 
 // Plinko multipliers for each bucket
 const MULTIPLIERS = [16, 9, 2, 1.4, 1.1, 1, 0.5, 1, 1.1, 1.4, 2, 9, 16];
-const BUCKET_COLORS = [
-  '#22c55e', // 16x - green
-  '#84cc16', // 9x - lime
-  '#eab308', // 2x - yellow
-  '#f97316', // 1.4x - orange
-  '#fb923c', // 1.1x - light orange
-  '#94a3b8', // 1x - gray
-  '#ef4444', // 0.5x - red
-  '#94a3b8', // 1x - gray
-  '#fb923c', // 1.1x - light orange
-  '#f97316', // 1.4x - orange
-  '#eab308', // 2x - yellow
-  '#84cc16', // 9x - lime
-  '#22c55e', // 16x - green
-];
+
+// Helper function to generate color shades
+const generateBucketColors = (primaryColor: string) => {
+  const colors = [];
+  for (const multiplier of MULTIPLIERS) {
+    const shade = Math.max(0, Math.log2(multiplier) * 20);
+    colors.push(`hsl(from ${primaryColor} h s ${shade}%)`);
+  }
+  return colors;
+};
 
 function PlinkoBoard({
   isDropping,
@@ -48,6 +43,14 @@ function PlinkoBoard({
 }) {
   const rows = 12;
   const [ballPath, setBallPath] = useState<Array<{ x: number; y: number }>>([]);
+  const [bucketColors, setBucketColors] = useState<string[]>([]);
+
+  useEffect(() => {
+    const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+    if (primaryColor) {
+      setBucketColors(generateBucketColors(primaryColor));
+    }
+  }, []);
 
   useEffect(() => {
     if (isDropping && bucketIndex !== null) {
@@ -99,7 +102,8 @@ function PlinkoBoard({
                   animate={{ scale: 1 }}
                   transition={{ delay: rowIndex * 0.05 + pegIndex * 0.02 }}
                   style={{
-                    boxShadow: '0 0 10px rgba(96, 165, 250, 0.6)',
+                    boxShadow: '0 0 10px var(--primary)',
+                    backgroundColor: 'var(--primary)',
                   }}
                 />
               ))}
@@ -128,7 +132,8 @@ function PlinkoBoard({
                 ease: 'easeInOut',
               }}
               style={{
-                boxShadow: '0 0 20px rgba(251, 146, 60, 0.8)',
+                boxShadow: '0 0 20px var(--accent)',
+                backgroundColor: 'var(--accent)',
               }}
             />
           )}
@@ -148,17 +153,17 @@ function PlinkoBoard({
             <motion.div
               className="w-12 h-16 rounded-b-lg border-2 border-t-0 flex items-end justify-center pb-1"
               style={{
-                backgroundColor: `${BUCKET_COLORS[index]}20`,
-                borderColor: BUCKET_COLORS[index],
+                backgroundColor: `${bucketColors[index]}20`,
+                borderColor: bucketColors[index],
               }}
               animate={
                 bucketIndex === index && !isDropping
                   ? {
                       scale: [1, 1.1, 1],
                       boxShadow: [
-                        `0 0 10px ${BUCKET_COLORS[index]}80`,
-                        `0 0 30px ${BUCKET_COLORS[index]}`,
-                        `0 0 10px ${BUCKET_COLORS[index]}80`,
+                        `0 0 10px ${bucketColors[index]}80`,
+                        `0 0 30px ${bucketColors[index]}`,
+                        `0 0 10px ${bucketColors[index]}80`,
                       ],
                     }
                   : {}
@@ -167,7 +172,7 @@ function PlinkoBoard({
             >
               <span
                 className="text-xs font-bold"
-                style={{ color: BUCKET_COLORS[index] }}
+                style={{ color: bucketColors[index] }}
               >
                 {multiplier}x
               </span>

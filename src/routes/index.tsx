@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createFileRoute } from "@tanstack/react-router";
+import { ThemeContext } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WalletConnect } from '@/components/WalletConnect';
@@ -60,6 +61,31 @@ function App() {
 	const autoBetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const previousSessionCountRef = useRef<number>(0);
 	const [kycDialogOpen, setKycDialogOpen] = useState(false);
+	const themeContext = useContext(ThemeContext);
+
+	useEffect(() => {
+		if (themeContext) {
+			switch (activeTab) {
+				case 'dice':
+					themeContext.setTheme('dice');
+					break;
+				case 'plinko':
+					themeContext.setTheme('plinko');
+					break;
+				case 'roulette':
+					themeContext.setTheme('roulette');
+					break;
+				case 'slots':
+					themeContext.setTheme('slots');
+					break;
+				case 'zen':
+					themeContext.setTheme('zen');
+					break;
+				default:
+					themeContext.setTheme('default');
+			}
+		}
+	}, [activeTab, themeContext]);
 
 	// Queries
 	const { data: wallets = [] } = useUserWallets(currentUser?.id || null);
@@ -450,6 +476,10 @@ function App() {
 												<Shield className="w-4 h-4 mr-1" />
 												<span className="hidden sm:inline">Settings</span>
 											</TabsTrigger>
+											<TabsTrigger value="zen" className="text-xs">
+												<CircleIcon className="w-4 h-4 mr-1" />
+												<span className="hidden sm:inline">Zen</span>
+											</TabsTrigger>
 										</TabsList>
 
 										<Suspense
@@ -564,6 +594,12 @@ function App() {
 
 											<TabsContent value="leaderboard">
 												<Leaderboard />
+											</TabsContent>
+											<TabsContent value="zen">
+												<div className="text-center">
+													<h2 className="text-2xl font-bold">Zen Mode</h2>
+													<p className="text-muted-foreground">A clean and simple theme for a focused gaming experience.</p>
+												</div>
 											</TabsContent>
 										</Suspense>
 									</Tabs>
