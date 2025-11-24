@@ -11,6 +11,7 @@ import { QuickBetControls } from '@/components/QuickBetControls';
 import { useSound } from '@/hooks/useSound';
 import { useHaptic } from '@/hooks/useHaptic';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { displayError } from '@/utils/errorHandler';
 
 interface SlotsGameProps {
   onPlaceBet: (betAmount: string, target: number) => void;
@@ -190,12 +191,12 @@ export function SlotsGame({
 
   const handlePlaceBet = useCallback(() => {
     if (parseFloat(betAmount) <= 0) {
-      alert('Please enter a valid bet amount');
+      displayError(new Error('Please enter a valid bet amount'), { type: 'validation' });
       return;
     }
 
     if (parseFloat(betAmount) > currentBalance) {
-      alert('Insufficient balance');
+      displayError(new Error('Insufficient balance'), { type: 'payment' });
       return;
     }
 
