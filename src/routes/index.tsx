@@ -318,6 +318,8 @@ function App() {
 						connectedAddress={connectedAddress}
 						onConnect={connectWallet}
 						onDisconnect={disconnectWallet}
+						isConnecting={isConnecting}
+						error={connectionError}
 					/>
 				</motion.div>
 
