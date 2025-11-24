@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
+import { ThemeContext } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,13 +45,14 @@ function PlinkoBoard({
   const rows = 12;
   const [ballPath, setBallPath] = useState<Array<{ x: number; y: number }>>([]);
   const [bucketColors, setBucketColors] = useState<string[]>([]);
+  const themeContext = useContext(ThemeContext);
 
   useEffect(() => {
     const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
     if (primaryColor) {
       setBucketColors(generateBucketColors(primaryColor));
     }
-  }, []);
+  }, [themeContext]);
 
   useEffect(() => {
     if (isDropping && bucketIndex !== null) {
@@ -264,10 +266,11 @@ export function PlinkoGame({
   const potentialWin = parseFloat(betAmount) * maxMultiplier;
 
   return (
-    <div className="space-y-6">
-      {/* Plinko Board */}
-      <Card className="relative p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border-2">
-        {/* Animated background */}
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="space-y-6">
+        {/* Plinko Board */}
+        <Card className="relative p-4 md:p-8 overflow-hidden backdrop-blur-sm bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border-2">
+          {/* Animated background */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none">
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent"
@@ -480,5 +483,6 @@ export function PlinkoGame({
         </motion.div>
       </Card>
     </div>
+  </div>
   );
 }
