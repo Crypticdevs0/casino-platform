@@ -563,54 +563,55 @@ function App() {
 											<TabsContent value="leaderboard">
 												<Leaderboard />
 											</TabsContent>
+										</Suspense>
+									</Tabs>
+								</div>
 
-      <ResponsibleGamingModal
-        isOpen={rgModalOpen}
-        onClose={() => setRgModalOpen(false)}
-        kycLevel={currentUser?.kyc_level}
-      />
+								<div>
+									<RecentResults sessions={gameSessions} currency={selectedCurrency} />
+									<PlayerStats currentUser={currentUser} gameSessions={gameSessions} />
+									<LiveActivityFeed gameSessions={gameSessions} currency={selectedCurrency} />
+								</div>
+							</motion.div>
+						</motion.div>
+					)}
+				</AnimatePresence>
 
-      <ArcadePassModal
-        isOpen={arcadePassModalOpen}
-        onClose={() => setArcadePassModalOpen(false)}
-      />
+				<ResponsibleGamingModal
+					isOpen={rgModalOpen}
+					onClose={() => setRgModalOpen(false)}
+					kycLevel={currentUser?.kyc_level}
+				/>
 
-      <WelcomeOfferModal
-        isOpen={welcomeModalOpen}
-        onClose={() => setWelcomeModalOpen(false)}
-      />
+				<ArcadePassModal
+					isOpen={arcadePassModalOpen}
+					onClose={() => setArcadePassModalOpen(false)}
+				/>
 
-      <DepositDialog
-        open={depositDialogOpen}
-        onOpenChange={setDepositDialogOpen}
-        currency={selectedCurrency}
-        onDeposit={handleDeposit}
-        isDepositing={depositMutation.isPending}
-      />
-    </div>
-  );
-};
+				<WelcomeOfferModal
+					isOpen={welcomeModalOpen}
+					onClose={() => setWelcomeModalOpen(false)}
+				/>
 
+				<DepositDialog
+					open={depositDialogOpen}
+					onOpenChange={setDepositDialogOpen}
+					currency={selectedCurrency}
+					onDeposit={handleDeposit}
+					isDepositing={depositMutation.isPending}
+				/>
 
-<ArcadePassModal
-  isOpen={arcadePassModalOpen}
-  onClose={() => setArcadePassModalOpen(false)}
-/>
+				<KycVerificationDialog
+					isOpen={kycDialogOpen}
+					onClose={() => setKycDialogOpen(false)}
+					currentLevel={currentUser?.kyc_level || 0}
+				/>
 
-<WelcomeOfferModal
-  isOpen={welcomeModalOpen}
-  onClose={() => setWelcomeModalOpen(false)}
-/>
-
-<DepositDialog
-  open={depositDialogOpen}
-  onOpenChange={setDepositDialogOpen}
-  currency={selectedCurrency}
-  onDeposit={handleDeposit}
-  isDepositing={depositMutation.isPending}
-/>
-</div>
-);
+				<OnboardingTutorial />
+				<SettingsPortal />
+			</div>
+		</div>
+	);
 }
 
 export default App;
