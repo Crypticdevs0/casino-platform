@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Gift } from 'lucide-react';
+import { displaySuccess } from '@/utils/errorHandler';
 
 interface WelcomeOfferModalProps {
   isOpen: boolean;
