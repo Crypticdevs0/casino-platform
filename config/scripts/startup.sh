@@ -55,9 +55,9 @@ main() {
         cat sync-metadata.json | jq -r '"  Commit: " + .commit + "\n  Branch: " + .branch + "\n  Timestamp: " + .timestamp' 2>/dev/null || cat sync-metadata.json
     fi
     
-    # Install dependencies (leverages npm cache for speed)
+    # Install dependencies (uses pnpm)
     log_info "Installing/updating dependencies..."
-    if npm ci --prefer-offline --silent; then
+    if pnpm install --frozen-lockfile --silent; then
         log_success "Dependencies installed successfully"
     else
         log_error "Failed to install dependencies"
@@ -68,9 +68,9 @@ main() {
     log_success "Container ready for development!"
     log_info "Working directory: ${APP_DIR}"
     log_info "Available commands:"
-    echo "  • npm run check    - TypeScript + ESLint validation"
-    echo "  • npm run build    - Production build"
-    echo "  • npm run test     - Run tests"
+    echo "  • pnpm run check    - TypeScript + ESLint validation"
+    echo "  • pnpm run build    - Production build"
+    echo "  • pnpm run test     - Run tests"
     
     # Keep container running if no command specified
     if [ $# -eq 0 ]; then

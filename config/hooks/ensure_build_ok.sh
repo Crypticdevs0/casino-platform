@@ -12,7 +12,7 @@ RETRY_COUNT_FILE="agent/.retry_counts.build.local"
 mkdir -p "$(dirname "$RETRY_COUNT_FILE")"
 
 # Run build first
-if build_output=$(npm run build 2>&1); then
+if build_output=$(pnpm run build 2>&1); then
     # Build succeeded - reset retry counter and exit successfully
     echo "0" > "$RETRY_COUNT_FILE"
     echo "✅ Build succeeded"
