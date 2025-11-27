@@ -608,7 +608,7 @@ function App() {
 								<div className="lg:sticky lg:top-6 space-y-6">
 									<RecentResults results={gameSessions.map(s => ({ won: s.status === 2, multiplier: parseFloat(s.win_amount || '0') / parseFloat(s.bet_amount || '1') }))} />
 									<PlayerStats sessions={gameSessions} currency={selectedCurrency} />
-									<LiveActivityFeed gameSessions={gameSessions} currency={selectedCurrency} />
+									<LiveActivityFeed sessions={gameSessions} currency={selectedCurrency} />
 								</div>
 							</motion.div>
 						</motion.div>
@@ -640,8 +640,8 @@ function App() {
 				/>
 
 				<KycVerificationDialog
-					isOpen={kycDialogOpen}
-					onClose={() => setKycDialogOpen(false)}
+					open={kycDialogOpen}
+					onOpenChange={setKycDialogOpen}
 					currentLevel={currentUser?.kyc_level || 0}
 				/>
 
