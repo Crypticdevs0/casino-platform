@@ -568,19 +568,19 @@ code {
 	}
 
 	.text-success {
-		@apply text-success;
+		@apply text-green-600;
 	}
 
 	.text-warning {
-		@apply text-warning;
+		@apply text-yellow-600;
 	}
 
 	.text-danger {
-		@apply text-danger;
+		@apply text-red-600;
 	}
 
 	.text-info {
-		@apply text-info;
+		@apply text-blue-600;
 	}
 
 	/* Flex utilities */
