@@ -190,14 +190,11 @@ export const useGameStore = create<GameState>()(
         },
 
         endGame: (result) => {
-          const { currentGame, betAmount, processGameResult } = get();
+          const { currentGame, betAmount, processGameResult: processResult } = get();
           if (!currentGame) return;
 
           // Process the game result with enhanced handling
-          processGameResult({
-            ...result,
-            id: generateId(),
-          });
+          void processResult(result);
         },
 
         processGameResult: async (result) => {
