@@ -517,15 +517,15 @@ code {
 	}
 
 	.badge-success {
-		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-success/10 text-success;
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-600;
 	}
 
 	.badge-warning {
-		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warning/10 text-warning;
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-600;
 	}
 
 	.badge-danger {
-		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-danger/10 text-danger;
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-600;
 	}
 
 	/* Status indicators */
@@ -534,7 +534,7 @@ code {
 	}
 
 	.status-online {
-		@apply inline-block w-2 h-2 rounded-full bg-success;
+		@apply inline-block w-2 h-2 rounded-full bg-green-500;
 	}
 
 	.status-offline {
@@ -542,11 +542,11 @@ code {
 	}
 
 	.status-away {
-		@apply inline-block w-2 h-2 rounded-full bg-warning;
+		@apply inline-block w-2 h-2 rounded-full bg-yellow-500;
 	}
 
 	.status-busy {
-		@apply inline-block w-2 h-2 rounded-full bg-danger;
+		@apply inline-block w-2 h-2 rounded-full bg-red-500;
 	}
 
 	/* Input fields */
