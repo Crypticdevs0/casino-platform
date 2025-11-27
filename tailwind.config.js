@@ -13,9 +13,9 @@ module.exports = {
     },
     extend: {
       colors: {
-        success: '#22c55e',
-        warning: '#eab308',
-        danger: '#ef4444',
+        success: 'rgb(34 197 94 / <alpha-value>)',
+        warning: 'rgb(234 179 8 / <alpha-value>)',
+        danger: 'rgb(239 68 68 / <alpha-value>)',
       },
     },
   },
