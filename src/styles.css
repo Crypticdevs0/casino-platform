@@ -483,7 +483,7 @@ code {
 	}
 
 	.card-interactive {
-		@apply card-elevated cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-primary/50;
+		@apply bg-card rounded-lg border border-border shadow-lg cursor-pointer transition-all duration-200 hover:shadow-xl hover:border-primary/50;
 	}
 
 	/* Buttons base styles */
