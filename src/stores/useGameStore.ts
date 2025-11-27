@@ -203,8 +203,8 @@ export const useGameStore = create<GameState>()(
 
           const timestamp = Date.now();
           const gameResult: GameResult = {
-            ...result,
-            id: result.id || generateId(),
+            ...(result as any),
+            id: generateId(),
             timestamp,
           };
 
