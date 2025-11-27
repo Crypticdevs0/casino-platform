@@ -3,6 +3,15 @@ import { devtools, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
+// Simple UUID generator using crypto API
+const generateId = (): string => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for environments without crypto.randomUUID
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
 // Types
 export type GameType = 'slot' | 'blackjack' | 'roulette' | 'poker' | 'baccarat';
 
@@ -180,7 +189,7 @@ export const useGameStore = create<GameState>()(
           // Process the game result with enhanced handling
           processGameResult({
             ...result,
-            id: uuidv4(),
+            id: generateId(),
           });
         },
 
@@ -191,7 +200,7 @@ export const useGameStore = create<GameState>()(
           const timestamp = Date.now();
           const gameResult: GameResult = {
             ...result,
-            id: result.id || uuidv4(),
+            id: result.id || generateId(),
             timestamp,
           };
 
@@ -231,7 +240,7 @@ export const useGameStore = create<GameState>()(
 
             // Add to game history
             const historyItem: GameHistoryItem = {
-              id: uuidv4(),
+              id: generateId(),
               game: currentGame,
               timestamp,
               bet: betAmount,
