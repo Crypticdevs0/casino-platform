@@ -59,7 +59,7 @@ export function ConfettiButton({
       const result = onClick(e);
       
       // If onClick returns a promise, handle loading state
-      if (result instanceof Promise) {
+      if (result instanceof (Promise as any)) {
         setIsInternalLoading(true);
         result.finally(() => {
           setIsInternalLoading(false);
@@ -165,7 +165,7 @@ export function ConfettiButton({
                 "absolute w-2 h-2 rounded-sm",
                 {
                   'rounded-full': particle.shape === 'circle',
-                  'w-3 h-1': particle.shape === 'rectangle',
+                  'w-3 h-1': particle.shape === 'square',
                 }
               )}
               style={{
