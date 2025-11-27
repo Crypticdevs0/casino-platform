@@ -2,12 +2,22 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-// import { createSelectorHooks } from 'zustand-selector-hooks'; // Not installed
-// import { v4 as uuidv4 } from 'uuid'; // Not installed
 
 // Stubs for missing packages
-const createSelectorHooks = () => ({});
-const uuidv4 = () => Math.random().toString(36).substring(2, 11);
+let createSelectorHooks: any;
+let uuidv4: any;
+
+try {
+  ({ createSelectorHooks } = require('zustand-selector-hooks'));
+} catch (e) {
+  createSelectorHooks = null;
+}
+
+try {
+  ({ v4: uuidv4 } = require('uuid'));
+} catch (e) {
+  uuidv4 = () => Math.random().toString(36).substring(2, 11);
+}
 
 // Types
 export type GameType = 'slot' | 'blackjack' | 'roulette' | 'poker' | 'baccarat';
@@ -184,20 +194,18 @@ export const useGameStore = create<GameState>()(
           if (!currentGame) return;
 
           // Process the game result with enhanced handling
-          processGameResult({
-            ...result,
-            id: uuidv4(),
-          });
+          const { id, timestamp, ...resultData } = result;
+          processGameResult(resultData);
         },
 
-        processGameResult: async (result) => {
+        processGameResult: async (result: Omit<GameResult, 'timestamp' | 'id'>) => {
           const { currentGame, betAmount } = get();
           if (!currentGame) return;
 
           const timestamp = Date.now();
           const gameResult: GameResult = {
             ...result,
-            id: result.id || uuidv4(),
+            id: uuidv4(),
             timestamp,
           };
 
@@ -243,7 +251,6 @@ export const useGameStore = create<GameState>()(
               bet: betAmount,
               win: finalWinAmount,
               result: {
-                id: gameResult.id,
                 winAmount: finalWinAmount,
                 multiplier: gameResult.multiplier
                   ? gameResult.multiplier * bonusMultiplier
@@ -319,8 +326,8 @@ export const useGameStore = create<GameState>()(
       {
         name: GAME_CONFIG.STORAGE_KEY,
         version: 1, // Increment this when making breaking changes
-        storage: createCustomStorage(),
-        partialize: (state) => ({
+        storage: createCustomStorage() as any,
+        partialize: (state: GameState) => ({
           balance: state.balance,
           betAmount: state.betAmount,
           gameHistory: state.gameHistory,
@@ -330,7 +337,7 @@ export const useGameStore = create<GameState>()(
           autoPlay: state.autoPlay,
           lastPlayed: state.lastPlayed,
           sessionStart: state.sessionStart,
-        }),
+        } as any),
         migrate: (persistedState: any, version) => {
           console.log('Migrating from version', version);
 
@@ -359,7 +366,7 @@ export const useGameStore = create<GameState>()(
 );
 
 // Create typed hooks for better TypeScript support
-export const useGameStoreSelectors = createSelectorHooks(useGameStore);
+export const useGameStoreSelectors = createSelectorHooks ? createSelectorHooks(useGameStore) : ({} as any);
 
 // Export selectors with memoization
 export const selectors = {

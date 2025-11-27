@@ -10,7 +10,10 @@ import { CardFlip } from '@/components/casino/CardFlip';
 import { cn } from '@/lib/utils';
 
 // Lazy load heavy components
-const GameCard = lazy(() => import('@/components/casino/GameCard').then(m => ({ default: m.GameCard ?? m.default })));
+const GameCard = lazy(() => import('@/components/casino/GameCard').then(m => {
+  // Support both default export and named export
+  return { default: m.GameCard ?? m.default ?? m };
+}));
 
 // Type definitions
 type Volatility = 'Low' | 'Medium' | 'High';
@@ -488,7 +491,7 @@ function GameLobbyContent() {
                   <select 
                     className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pr-8 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={(e) => setSortBy(e.target.value as 'az' | 'newest' | 'popular' | 'rtp')}
                   >
                     <option value="popular">Most Popular</option>
                     <option value="newest">Newest First</option>

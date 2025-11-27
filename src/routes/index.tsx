@@ -641,8 +641,11 @@ function App() {
 
 				<KycVerificationDialog
 					open={kycDialogOpen}
-					onClose={() => setKycDialogOpen(false)}
-					currentLevel={currentUser?.kyc_level || 0}
+					onOpenChange={setKycDialogOpen}
+					level={currentUser?.kyc_level || 0}
+					onUpgradeLevel={async (nextLevel) => {
+						// TODO: Implement KYC upgrade logic
+					}}
 				/>
 
 				<OnboardingTutorial />

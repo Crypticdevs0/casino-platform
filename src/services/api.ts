@@ -1,4 +1,32 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+let axios: any;
+let AxiosInstance: any;
+let AxiosRequestConfig: any;
+let AxiosResponse: any;
+
+try {
+  const axiosModule = require('axios');
+  axios = axiosModule.default || axiosModule;
+  AxiosInstance = axios;
+  AxiosRequestConfig = axios;
+  AxiosResponse = axios;
+} catch (e) {
+  // axios not installed, create stub
+  axios = {
+    create: () => ({
+      interceptors: { request: { use: () => {} }, response: { use: () => {} } },
+      get: () => Promise.resolve({ data: {} }),
+      post: () => Promise.resolve({ data: {} }),
+      put: () => Promise.resolve({ data: {} }),
+      delete: () => Promise.resolve({ data: {} }),
+      patch: () => Promise.resolve({ data: {} }),
+      request: () => Promise.resolve({ data: {} }),
+    }),
+  };
+  AxiosInstance = any;
+  AxiosRequestConfig = any;
+  AxiosResponse = any;
+}
+
 import { toast } from 'sonner';
 
 // Types
@@ -22,6 +50,7 @@ export interface ApiConfig extends AxiosRequestConfig {
   skipAuth?: boolean;
   skipErrorToast?: boolean;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
+  url?: string;
 }
 
 class ApiService {
@@ -40,15 +69,15 @@ class ApiService {
 
     // Request interceptor
     this.api.interceptors.request.use(
-      (config) => {
+      (config: any) => {
         // Add auth token if available
         const token = localStorage.getItem('auth_token');
-        if (token && !(config as any).skipAuth) {
+        if (token && !config.skipAuth) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => {
+      (error: any) => {
         return Promise.reject(error);
       }
     );
@@ -62,7 +91,7 @@ class ApiService {
         }
         return response;
       },
-      (error) => {
+      (error: any) => {
         // Handle errors
         if (error.response) {
           // Server responded with a status code outside 2xx

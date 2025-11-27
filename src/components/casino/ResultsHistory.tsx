@@ -82,7 +82,7 @@ export function ResultsHistory() {
                 </div>
               )}
               
-              {result.result.winningLines?.length > 0 && (
+              {result.result.winningLines && result.result.winningLines.length > 0 && (
                 <div className="mt-2">
                   <div className="text-xs text-muted-foreground">Winning Lines:</div>
                   <div className="flex flex-wrap gap-1 mt-1">
