@@ -56,10 +56,10 @@ export function ConfettiButton({
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (onClick) {
-      const result = onClick(e);
-      
+      const result = onClick(e) as any;
+
       // If onClick returns a promise, handle loading state
-      if (result instanceof (Promise as any)) {
+      if (result && typeof result.finally === 'function') {
         setIsInternalLoading(true);
         result.finally(() => {
           setIsInternalLoading(false);
