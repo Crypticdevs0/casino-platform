@@ -162,6 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // TODO: Implement 2FA enable
       // return await authService.enable2FA();
+      return { secret: '', qrCodeUrl: '' };
     } catch (error) {
       console.error('Failed to enable 2FA:', error);
       throw error;
