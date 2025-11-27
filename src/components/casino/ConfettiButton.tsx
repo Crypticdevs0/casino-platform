@@ -65,9 +65,7 @@ export function ConfettiButton({
           setIsInternalLoading(false);
         });
       }
-    }
-
-    // Show confetti if not in loading state
+    }    // Show confetti if not in loading state
     if (!isLoading && !isInternalLoading) {
       createConfetti();
     }

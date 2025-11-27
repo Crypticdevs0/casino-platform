@@ -7,7 +7,6 @@ import svgr from "vite-plugin-svgr";
 import { creaoPlugins } from "./config/vite/creao-plugin.mjs";
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { createHtmlPlugin } from 'vite-plugin-html';
 
 // https://vitejs.dev/config/
 // Production optimizations
@@ -39,10 +38,8 @@ export default defineConfig(({ mode }) => {
         routes: 'src/pages',
       }),
       viteReact({
-        jsxRuntime: "automatic",
         babel: {
           plugins: [
-            ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }],
             'babel-plugin-macros',
           ],
         },

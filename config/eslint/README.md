@@ -28,36 +28,36 @@ config/eslint/
   - Standard ignore patterns
   - Generated code handling (DAL/ORM)
 
-### **MCP Configuration** (`eslint.mcp.config.js`)
+-### **MCP Configuration** (`eslint.mcp.config.js`)
 - **Purpose**: Validates MCP integrations for proper testing
-- **Usage**: `npm run eslint:mcp`
+- **Usage**: `pnpm run eslint:mcp`
 - **Key Features**:
   - Enforces verification comments on MCP calls
   - Detects commonly assumed parameter names
   - Prevents integration failures from untested endpoints
 
-### **Radix Configuration** (`eslint.radix.config.js`)
+-### **Radix Configuration** (`eslint.radix.config.js`)
 - **Purpose**: Validates Radix UI component usage
-- **Usage**: `npm run eslint:radix` (runs in build process)
+- **Usage**: `pnpm run eslint:radix` (runs in build process)
 - **Key Features**:
   - Prevents empty SelectItem values
   - Ensures proper Radix component patterns
 
 ## 🚀 Usage
 
-### NPM Scripts
+### Package Scripts (pnpm)
 ```bash
 # Run all standard linting (includes Radix validation)
-npm run check
+pnpm run check
 
 # Run MCP-specific validation
-npm run eslint:mcp
+pnpm run eslint:mcp
 
 # Run only Radix validation
-npm run eslint:radix
+pnpm run eslint:radix
 
 # Validate all ESLint configurations are working
-npm run eslint:validate
+pnpm run eslint:validate
 ```
 
 ### Direct Usage

@@ -9,11 +9,11 @@ A production-ready React frontend template designed for code agents to build mod
 ## 🔧 Development Commands
 
 **Primary Command:**
-- `npm run check:safe` - TypeScript type checking + ESLint validation (run when ready to validate)
+- `pnpm run check:safe` - TypeScript type checking + ESLint validation (run when ready to validate)
 
 **⚠️ CRITICAL E2B ENVIRONMENT RESTRICTIONS:**
-- **NEVER run `npm run dev` or `npm start`** - These will fail in E2B containers
-- **ALWAYS use `npm run check:safe`** for validation - This is your primary development tool
+- **NEVER run `pnpm run dev` or `pnpm start`** - These will fail in E2B containers
+- **ALWAYS use `pnpm run check:safe`** for validation - This is your primary development tool
 
 ## 📋 Development Workflow
 
@@ -22,7 +22,7 @@ A production-ready React frontend template designed for code agents to build mod
 2. **🚨 Validate & Read**: Verify Tailwind classes, shadcn/ui components, TypeScript setup. Read any relevant components completely to understand their capabilities
 3. **Build**: Edit `src/routes/index.tsx` (main development target)
 4. **Customize**: Update `index.html` title (line 14) & meta description (line 10)
-5. **Validate**: Run `npm run check:safe` when you think the build should succeed
+5. **Validate**: Run `pnpm run check:safe` when you think the build should succeed
 6. **Fix Issues**: Address any TypeScript/ESLint errors shown
 
 ## 🏗️ Architecture Overview
@@ -92,4 +92,4 @@ A production-ready React frontend template designed for code agents to build mod
 - [ ] `index.html` customized (title/meta description)
 - [ ] Functionality works with real user input
 - [ ] No TypeScript/ESLint errors
-- [ ] `npm run check:safe` passes
+- [ ] `pnpm run check:safe` passes

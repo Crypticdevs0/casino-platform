@@ -41,13 +41,13 @@ setup_logs() {
 #======================================
 start_all_checks() {
     # Start all checks in background with individual logs
-    npm run format:quiet >"$format_log" 2>&1 &
+    pnpm run format:quiet >"$format_log" 2>&1 &
     format_pid=$!
 
     npx tsgo --noEmit --pretty false >"$typecheck_log" 2>&1 &
     typecheck_pid=$!
 
-    npm run lint:radix:check -- --no-color --quiet >"$lint_log" 2>&1 &
+    pnpm run lint:radix:check -- --no-color --quiet >"$lint_log" 2>&1 &
     lint_pid=$!
 }
 

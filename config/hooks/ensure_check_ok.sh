@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Run check first
-check_command="npx tsgo --noEmit && npm run lint:radix"
+check_command="npx tsgo --noEmit && pnpm run lint:radix"
 if check_output=$(timeout 20 bash -c "$check_command" 2>&1); then
     # Check succeeded - exit successfully
     echo "✅ Check succeeded"

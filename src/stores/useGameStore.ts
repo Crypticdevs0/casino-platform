@@ -157,7 +157,7 @@ const initialState = {
 };
 
 // Create the store with middleware
-export const useGameStore = create<GameState>()(
+export const useGameStore = (create as any)<GameState>()(
   devtools(
     persist(
       immer((set, get) => ({
@@ -197,7 +197,7 @@ export const useGameStore = create<GameState>()(
           void processResult(result);
         },
 
-        processGameResult: async (result) => {
+        processGameResult: async (result: Omit<GameResult, 'timestamp' | 'id'>) => {
           const { currentGame, betAmount } = get();
           if (!currentGame) return;
 
@@ -323,8 +323,8 @@ export const useGameStore = create<GameState>()(
       {
         name: GAME_CONFIG.STORAGE_KEY,
         version: 1, // Increment this when making breaking changes
-        storage: createCustomStorage(),
-        partialize: (state) => ({
+        storage: createCustomStorage() as any,
+        partialize: (state: GameState) => ({
           balance: state.balance,
           betAmount: state.betAmount,
           gameHistory: state.gameHistory,
@@ -334,7 +334,7 @@ export const useGameStore = create<GameState>()(
           autoPlay: state.autoPlay,
           lastPlayed: state.lastPlayed,
           sessionStart: state.sessionStart,
-        }),
+        } as any),
         migrate: (persistedState: any, version) => {
           console.log('Migrating from version', version);
 

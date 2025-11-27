@@ -1281,14 +1281,14 @@ export function OptimizedImage({ src, alt }) {
 # Add to package.json
 {
   "scripts": {
-    "build:analyze": "vite build && npm run rollup:visualize"
+    "build:analyze": "vite build && pnpm run rollup:visualize"
   },
   "devDependencies": {
     "rollup-plugin-visualizer": "^6.0.0"
   }
 }
 
-# Run: npm run build:analyze
+# Run: pnpm run build:analyze
 # View: dist/stats.html
 ```
 

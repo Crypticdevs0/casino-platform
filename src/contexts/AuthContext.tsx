@@ -158,7 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const enable2FA = async () => {
+  const enable2FA = async (): Promise<{ secret: string; qrCodeUrl: string }> => {
     try {
       // TODO: Implement 2FA enable
       // return await authService.enable2FA();

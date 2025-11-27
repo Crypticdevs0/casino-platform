@@ -479,16 +479,16 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 
 ```bash
 # View the design system in action
-npm run dev
+pnpm run dev
 
 # Validate all changes
-npm run check:safe
+pnpm run check:safe
 
 # Check for accessibility issues
 # (Manually in DevTools)
 
 # Build for production
-npm run build
+pnpm run build
 ```
 
 ---

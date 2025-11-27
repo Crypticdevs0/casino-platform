@@ -20,6 +20,11 @@ export interface ApiResponse<T = any> {
 export interface ApiConfig extends RequestInit {
   skipAuth?: boolean;
   skipErrorToast?: boolean;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
+  url?: string;
+  data?: any;
+  params?: any;
+  headers?: Record<string, any>;
 }
 
 class ApiService {
