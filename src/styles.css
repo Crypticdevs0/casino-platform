@@ -538,15 +538,15 @@ code {
 	}
 
 	.status-offline {
-		@apply status-indicator bg-muted;
+		@apply inline-block w-2 h-2 rounded-full bg-muted;
 	}
 
 	.status-away {
-		@apply status-indicator bg-warning;
+		@apply inline-block w-2 h-2 rounded-full bg-warning;
 	}
 
 	.status-busy {
-		@apply status-indicator bg-danger;
+		@apply inline-block w-2 h-2 rounded-full bg-danger;
 	}
 
 	/* Input fields */
