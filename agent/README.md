@@ -15,7 +15,7 @@ A production-ready TypeScript implementation of the Claude Agent using the offic
 
 ```bash
 cd agent
-npm install
+pnpm install
 ```
 
 ## Usage
@@ -106,7 +106,7 @@ The TypeScript agent integrates seamlessly with existing Docker templates:
 # Install TypeScript agent
 COPY agent /home/user/agent
 WORKDIR /home/user/agent
-RUN npm ci --prefer-offline
+RUN pnpm install --frozen-lockfile
 RUN chmod +x /home/user/agent/bin/agent-claude.ts
 RUN ln -s /home/user/agent/bin/agent-claude.ts /usr/local/bin/agent-claude
 ```
@@ -115,13 +115,13 @@ RUN ln -s /home/user/agent/bin/agent-claude.ts /usr/local/bin/agent-claude
 
 ```bash
 # Type checking
-npm run type-check
+pnpm run type-check
 
 # Build
-npm run build
+pnpm run build
 
 # Development mode
-npm run dev "Your prompt here"
+pnpm run dev "Your prompt here"
 ```
 
 ## Compatibility

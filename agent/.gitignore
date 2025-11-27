@@ -36,3 +36,7 @@ Thumbs.db
 
 # TypeScript
 *.d.ts.map
+
+# npm lock files (we use pnpm)
+package-lock.json
+npm-shrinkwrap.json

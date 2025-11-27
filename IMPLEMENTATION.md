@@ -216,7 +216,7 @@ transaction2: {
 
 Run validation:
 ```bash
-npm run check:safe
+pnpm run check:safe
 ```
 
 All tests pass ✅

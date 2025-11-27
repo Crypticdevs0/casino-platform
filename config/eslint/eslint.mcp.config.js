@@ -4,7 +4,7 @@
  * This configuration specifically validates MCP integrations to ensure
  * proper testing and verification before implementation.
  * 
- * Usage: npm run eslint:mcp
+ * Usage: pnpm run eslint:mcp
  */
 
 import { commonIgnores, commonLanguageOptions } from './base.config.js';

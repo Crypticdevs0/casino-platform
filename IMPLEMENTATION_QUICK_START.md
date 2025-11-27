@@ -17,7 +17,7 @@
 
 **Implementation Steps**:
 ```bash
-1. npm install ethers wagmi @wagmi/core
+1. pnpm add ethers wagmi @wagmi/core
 2. Create Web3 provider wrapper with Wagmi
 3. Implement MetaMask + WalletConnect support
 4. Add signature-based auth (sign message, verify on backend)
@@ -502,22 +502,22 @@ src/components/data/orm/
 
 ```bash
 # Setup
-npm install ethers wagmi @wagmi/core
-npm install @sumsub/websdk
-npm install stripe
+pnpm add ethers wagmi @wagmi/core
+pnpm add @sumsub/websdk
+pnpm add stripe
 
 # Development
-npm run check:safe  # TypeScript + ESLint validation
+pnpm run check:safe  # TypeScript + ESLint validation
 
 # Testing
-npm run test        # Run all tests
+pnpm run test        # Run all tests
 
 # Build
-npm run build       # Production build
+pnpm run build       # Production build
 
 # Deployment
-npm run deploy:testnet
-npm run deploy:mainnet
+pnpm run deploy:testnet
+pnpm run deploy:mainnet
 ```
 
 ---
