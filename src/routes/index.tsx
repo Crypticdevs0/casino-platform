@@ -13,7 +13,7 @@ import { AutoBet, type AutoBetConfig } from '@/components/AutoBet';
 import { FairnessVerification } from '@/components/FairnessVerification';
 import { DepositDialog } from '@/components/DepositDialog';
 import { SoundToggle } from '@/components/SoundToggle';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { RecentResults } from '@/components/RecentResults';
 import { PlayerStats } from '@/components/PlayerStats';
 import { Leaderboard } from '@/components/Leaderboard';
@@ -327,7 +327,7 @@ function App() {
 							</Button>
 							<NotificationCenter sessions={gameSessions} currency={selectedCurrency} />
 							<SoundToggle />
-							<ThemeSwitcher />
+							<ThemeToggle />
 						</div>
 					</div>
 				</motion.div>
