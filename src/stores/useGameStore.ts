@@ -252,21 +252,18 @@ export const useGameStore = create<GameState>()(
               timestamp,
               bet: betAmount,
               win: finalWinAmount,
-              result: {
-                id: gameResult.id,
-                winAmount: finalWinAmount,
-                multiplier: gameResult.multiplier
-                  ? gameResult.multiplier * bonusMultiplier
-                  : bonusMultiplier > 1
-                  ? bonusMultiplier
-                  : undefined,
-                winningLines: gameResult.winningLines,
-                symbols: gameResult.symbols,
-                bonusRounds: gameResult.bonusRounds,
-                freeSpins: gameResult.freeSpins,
-                isJackpot: gameResult.isJackpot,
-                gameState: gameResult.gameState,
-              },
+              winAmount: finalWinAmount,
+              multiplier: gameResult.multiplier
+                ? gameResult.multiplier * bonusMultiplier
+                : bonusMultiplier > 1
+                ? bonusMultiplier
+                : undefined,
+              winningLines: gameResult.winningLines,
+              symbols: gameResult.symbols,
+              bonusRounds: gameResult.bonusRounds,
+              freeSpins: gameResult.freeSpins,
+              isJackpot: gameResult.isJackpot,
+              gameState: gameResult.gameState,
             };
 
             state.gameHistory.unshift(historyItem);
