@@ -31,13 +31,6 @@ interface Game {
   rating: number;
 }
 
-interface Category {
-  id: string;
-  name: string;
-  count: number;
-  icon?: React.ReactNode;
-}
-
 // Error Boundary Component
 function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (
@@ -163,29 +156,7 @@ function GameLobbyContent() {
   const [activeJackpot, setActiveJackpot] = useState<JackpotType>('mega');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'az' | 'rtp'>('popular');
-  
-  // Generate categories from games data
-  const categories = useMemo<Category[]>(() => {
-    const categoryMap = new Map<string, number>();
-    
-    // Count games in each category
-    games.forEach(game => {
-      game.category.forEach(cat => {
-        categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
-      });
-    });
-    
-    // Convert to array of categories
-    return [
-      { id: 'all', name: 'All Games', count: games.length },
-      ...Array.from(categoryMap.entries()).map(([id, count]) => ({
-        id: id.toLowerCase(),
-        name: id,
-        count,
-      })),
-    ];
-  }, [games]);
-  
+
   // Simulate loading games with progress
   useEffect(() => {
     let progress = 0;
