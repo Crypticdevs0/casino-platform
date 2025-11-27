@@ -481,10 +481,10 @@ function GameLobbyContent() {
               
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  <select 
+                  <select
                     className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pr-8 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={(e) => setSortBy(e.target.value as 'popular' | 'newest' | 'az' | 'rtp')}
                   >
                     <option value="popular">Most Popular</option>
                     <option value="newest">Newest First</option>
