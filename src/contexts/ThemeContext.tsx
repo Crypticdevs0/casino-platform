@@ -1,4 +1,5 @@
-import { createContext, useState, useMemo, ReactNode } from 'react';
+import { createContext, useState, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { diceTheme } from '@/themes/dice';
 import { plinkoTheme } from '@/themes/plinko';
 import { rouletteTheme } from '@/themes/roulette';
