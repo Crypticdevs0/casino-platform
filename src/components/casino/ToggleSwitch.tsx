@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-interface ToggleSwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface ToggleSwitchProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   labelPosition?: 'left' | 'right';
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger';

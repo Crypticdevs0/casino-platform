@@ -1,8 +1,13 @@
 import { create } from 'zustand';
-import { devtools, persist, StateStorage } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
+import type { StateStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { createSelectorHooks } from 'zustand-selector-hooks';
-import { v4 as uuidv4 } from 'uuid';
+// import { createSelectorHooks } from 'zustand-selector-hooks'; // Not installed
+// import { v4 as uuidv4 } from 'uuid'; // Not installed
+
+// Stubs for missing packages
+const createSelectorHooks = () => ({});
+const uuidv4 = () => Math.random().toString(36).substring(2, 11);
 
 // Types
 export type GameType = 'slot' | 'blackjack' | 'roulette' | 'poker' | 'baccarat';

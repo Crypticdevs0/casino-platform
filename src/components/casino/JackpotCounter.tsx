@@ -70,7 +70,7 @@ export function JackpotCounter({
               initial={{ y: 0, opacity: 1 }}
               animate={{ y: -20, opacity: 0 }}
               exit={{ y: 20, opacity: 0 }}
-              transition={{ duration, delay, ease }}
+              transition={{ duration, delay, ease: ease as any }}
               className="absolute flex"
             >
               {paddedPrevious.split('').map((char, index) => (
@@ -91,7 +91,7 @@ export function JackpotCounter({
             key="current"
             initial={{ y: isAnimating ? 20 : 0, opacity: isAnimating ? 0 : 1 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration, delay, ease }}
+            transition={{ duration, delay, ease: ease as any }}
             className="flex"
           >
             {paddedCurrent.split('').map((char, index) => (

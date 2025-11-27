@@ -10,7 +10,7 @@ import { CardFlip } from '@/components/casino/CardFlip';
 import { cn } from '@/lib/utils';
 
 // Lazy load heavy components
-const GameCard = lazy(() => import('@/components/casino/GameCard'));
+const GameCard = lazy(() => import('@/components/casino/GameCard').then(m => ({ default: m.GameCard ?? m.default })));
 
 // Type definitions
 type Volatility = 'Low' | 'Medium' | 'High';
@@ -142,12 +142,6 @@ const JACKPOT_AMOUNTS = {
 } as const;
 
 type JackpotType = keyof typeof JACKPOT_AMOUNTS;
-type Category = {
-  id: string;
-  name: string;
-  icon?: React.ReactNode;
-  count: number;
-};
 
 // Main GameLobby Component
 function GameLobbyContent() {
@@ -276,25 +270,6 @@ function GameLobbyContent() {
       });
   }, [games, selectedCategory, sortBy, isFiltering]);
 
-  // Generate categories from games
-  const categories = useMemo<Category[]>(() => {
-    const categoryMap = games.reduce((acc, game) => {
-      game.category.forEach(cat => {
-        acc.set(cat, (acc.get(cat) || 0) + 1);
-      });
-      return acc;
-    }, new Map<string, number>());
-
-    return [
-      { id: 'all', name: 'All Games', count: games.length },
-      ...Array.from(categoryMap.entries()).map(([name, count]) => ({
-        id: name.toLowerCase(),
-        name,
-        count,
-      })),
-    ];
-  }, [games]);
-  
   const claimBonus = () => {
     setShowWelcomeBonus(false);
     // Show confetti effect and update user balance in a real app

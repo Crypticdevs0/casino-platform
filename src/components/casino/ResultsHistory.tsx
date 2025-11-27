@@ -19,10 +19,10 @@ export function ResultsHistory() {
     <ScrollArea className="h-[400px] pr-4">
       <div className="space-y-3">
         {gameHistory.map((result) => {
-          const isWin = result.winAmount > 0;
-          const hasFreeSpins = (result.freeSpins ?? 0) > 0;
-          const hasBonusRounds = (result.bonusRounds ?? 0) > 0;
-          const isJackpot = result.isJackpot;
+          const isWin = result.result.winAmount > 0;
+          const hasFreeSpins = (result.result.freeSpins ?? 0) > 0;
+          const hasBonusRounds = (result.result.bonusRounds ?? 0) > 0;
+          const isJackpot = result.result.isJackpot;
 
           return (
             <div 
@@ -42,7 +42,7 @@ export function ResultsHistory() {
                       isWin ? "text-green-500" : "text-muted-foreground"
                     )}>
                       {isWin 
-                        ? `+$${result.winAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+                        ? `+$${result.result.winAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
                         : 'No Win'}
                     </span>
                     
@@ -63,30 +63,30 @@ export function ResultsHistory() {
                   {hasFreeSpins && (
                     <span className="text-xs bg-blue-500/10 text-blue-500 px-2 py-1 rounded-full flex items-center gap-1">
                       <Zap className="h-3 w-3" />
-                      {result.freeSpins}
+                      {result.result.freeSpins}
                     </span>
                   )}
                   
                   {hasBonusRounds && (
                     <span className="text-xs bg-purple-500/10 text-purple-500 px-2 py-1 rounded-full flex items-center gap-1">
                       <Gift className="h-3 w-3" />
-                      {result.bonusRounds}
+                      {result.result.bonusRounds}
                     </span>
                   )}
                 </div>
               </div>
               
-              {result.multiplier && result.multiplier > 1 && (
+              {result.result.multiplier && result.result.multiplier > 1 && (
                 <div className="mt-2 text-xs text-muted-foreground">
-                  <span className="font-medium">Multiplier:</span> x{result.multiplier.toFixed(2)}
+                  <span className="font-medium">Multiplier:</span> x{result.result.multiplier.toFixed(2)}
                 </div>
               )}
               
-              {result.winningLines?.length > 0 && (
+              {result.result.winningLines?.length > 0 && (
                 <div className="mt-2">
                   <div className="text-xs text-muted-foreground">Winning Lines:</div>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {result.winningLines.map((line) => (
+                    {result.result.winningLines.map((line: number) => (
                       <span 
                         key={line}
                         className="text-xs bg-foreground/5 text-foreground/80 px-2 py-0.5 rounded"

@@ -21,6 +21,7 @@ export interface ApiResponse<T = any> {
 export interface ApiConfig extends AxiosRequestConfig {
   skipAuth?: boolean;
   skipErrorToast?: boolean;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
 }
 
 class ApiService {

@@ -55,19 +55,17 @@ export function ConfettiButton({
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (onClick) {
-      const result = onClick(e);
+      if (onClick) {
+      const result = onClick(e) as any;
       
-      // If onClick returns a promise, handle loading state
-      if (result instanceof Promise) {
+      // If onClick returns a promise-like (thenable), handle loading state
+      if (result && typeof result.then === 'function') {
         setIsInternalLoading(true);
         result.finally(() => {
           setIsInternalLoading(false);
         });
       }
-    }
-
-    // Show confetti if not in loading state
+    }    // Show confetti if not in loading state
     if (!isLoading && !isInternalLoading) {
       createConfetti();
     }
@@ -162,11 +160,8 @@ export function ConfettiButton({
             <motion.div
               key={particle.id}
               className={cn(
-                "absolute w-2 h-2 rounded-sm",
-                {
-                  'rounded-full': particle.shape === 'circle',
-                  'w-3 h-1': particle.shape === 'rectangle',
-                }
+                "absolute w-2 h-2",
+                particle.shape === 'circle' ? 'rounded-full' : particle.shape === 'square' ? 'w-3 h-3' : ''
               )}
               style={{
                 backgroundColor: particle.color,
