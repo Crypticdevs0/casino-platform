@@ -513,27 +513,19 @@ code {
 	}
 
 	.badge-primary {
-		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
-		background-color: rgba(99, 102, 241, 0.1);
-		color: var(--primary);
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary;
 	}
 
 	.badge-success {
-		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
-		background-color: rgba(34, 197, 94, 0.1);
-		color: var(--success);
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-600;
 	}
 
 	.badge-warning {
-		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
-		background-color: rgba(245, 158, 11, 0.1);
-		color: var(--warning);
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/10 text-yellow-600;
 	}
 
 	.badge-danger {
-		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
-		background-color: rgba(239, 68, 68, 0.1);
-		color: var(--destructive);
+		@apply inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-600;
 	}
 
 	/* Status indicators */
@@ -542,8 +534,7 @@ code {
 	}
 
 	.status-online {
-		@apply inline-block w-2 h-2 rounded-full;
-		background-color: var(--success);
+		@apply inline-block w-2 h-2 rounded-full bg-green-500;
 	}
 
 	.status-offline {
@@ -551,13 +542,11 @@ code {
 	}
 
 	.status-away {
-		@apply inline-block w-2 h-2 rounded-full;
-		background-color: var(--warning);
+		@apply inline-block w-2 h-2 rounded-full bg-yellow-500;
 	}
 
 	.status-busy {
-		@apply inline-block w-2 h-2 rounded-full;
-		background-color: var(--destructive);
+		@apply inline-block w-2 h-2 rounded-full bg-red-500;
 	}
 
 	/* Input fields */
@@ -579,19 +568,19 @@ code {
 	}
 
 	.text-success {
-		color: var(--success);
+		@apply text-green-600;
 	}
 
 	.text-warning {
-		color: var(--warning);
+		@apply text-yellow-600;
 	}
 
 	.text-danger {
-		color: var(--destructive);
+		@apply text-red-600;
 	}
 
 	.text-info {
-		color: var(--info);
+		@apply text-blue-600;
 	}
 
 	/* Flex utilities */

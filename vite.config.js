@@ -51,6 +51,9 @@ export default defineConfig(({ mode }) => {
       }),
       tailwindcss(),
       basicSsl(),
+      isProduction && createHtmlPlugin({
+        minify: true,
+      }),
       isProduction && productionPlugins,
     ].filter(Boolean),
     test: {
@@ -94,6 +97,9 @@ export default defineConfig(({ mode }) => {
         'X-Frame-Options': 'DENY',
         'X-XSS-Protection': '1; mode=block',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
+        // NOTE: Development CSP includes 'unsafe-inline' and 'unsafe-eval' for HMR and dev tools
+        // IMPORTANT: For production, tighten this CSP by removing 'unsafe-inline' and 'unsafe-eval'
+        // and using nonces/hashes for inline scripts instead
         'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.casino-platform.com wss://ws.casino-platform.com;"
       },
     },

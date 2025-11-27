@@ -137,3 +137,5 @@ export function GameCardSkeleton() {
     </div>
   );
 }
+
+export default GameCard;

@@ -3,21 +3,14 @@ import { devtools, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-// Stubs for missing packages
-let createSelectorHooks: any;
-let uuidv4: any;
-
-try {
-  ({ createSelectorHooks } = require('zustand-selector-hooks'));
-} catch (e) {
-  createSelectorHooks = null;
-}
-
-try {
-  ({ v4: uuidv4 } = require('uuid'));
-} catch (e) {
-  uuidv4 = () => Math.random().toString(36).substring(2, 11);
-}
+// Simple UUID generator using crypto API
+const generateId = (): string => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback for environments without crypto.randomUUID
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
 
 // Types
 export type GameType = 'slot' | 'blackjack' | 'roulette' | 'poker' | 'baccarat';
@@ -41,7 +34,14 @@ type GameHistoryItem = {
   timestamp: number;
   bet: number;
   win: number;
-  result: Omit<GameResult, 'timestamp' | 'id'>;
+  winAmount: number;
+  multiplier?: number;
+  winningLines?: number[];
+  bonusRounds?: number;
+  freeSpins?: number;
+  isJackpot?: boolean;
+  symbols?: string[];
+  gameState?: Record<string, unknown>;
 };
 
 type GameStatistics = {
@@ -190,11 +190,11 @@ export const useGameStore = (create as any)<GameState>()(
         },
 
         endGame: (result) => {
-          const { currentGame, betAmount, processGameResult } = get();
+          const { currentGame, betAmount, processGameResult: processResult } = get();
           if (!currentGame) return;
 
           // Process the game result with enhanced handling
-          processGameResult(result as any);
+          void processResult(result);
         },
 
         processGameResult: async (result: Omit<GameResult, 'timestamp' | 'id'>) => {
@@ -203,8 +203,8 @@ export const useGameStore = (create as any)<GameState>()(
 
           const timestamp = Date.now();
           const gameResult: GameResult = {
-            ...result,
-            id: uuidv4(),
+            ...(result as any),
+            id: generateId(),
             timestamp,
           };
 
@@ -244,25 +244,23 @@ export const useGameStore = (create as any)<GameState>()(
 
             // Add to game history
             const historyItem: GameHistoryItem = {
-              id: uuidv4(),
+              id: generateId(),
               game: currentGame,
               timestamp,
               bet: betAmount,
               win: finalWinAmount,
-              result: {
-                winAmount: finalWinAmount,
-                multiplier: gameResult.multiplier
-                  ? gameResult.multiplier * bonusMultiplier
-                  : bonusMultiplier > 1
-                  ? bonusMultiplier
-                  : undefined,
-                winningLines: gameResult.winningLines,
-                symbols: gameResult.symbols,
-                bonusRounds: gameResult.bonusRounds,
-                freeSpins: gameResult.freeSpins,
-                isJackpot: gameResult.isJackpot,
-                gameState: gameResult.gameState,
-              },
+              winAmount: finalWinAmount,
+              multiplier: gameResult.multiplier
+                ? gameResult.multiplier * bonusMultiplier
+                : bonusMultiplier > 1
+                ? bonusMultiplier
+                : undefined,
+              winningLines: gameResult.winningLines,
+              symbols: gameResult.symbols,
+              bonusRounds: gameResult.bonusRounds,
+              freeSpins: gameResult.freeSpins,
+              isJackpot: gameResult.isJackpot,
+              gameState: gameResult.gameState,
             };
 
             state.gameHistory.unshift(historyItem);
@@ -365,7 +363,7 @@ export const useGameStore = (create as any)<GameState>()(
 );
 
 // Create typed hooks for better TypeScript support
-export const useGameStoreSelectors = createSelectorHooks ? createSelectorHooks(useGameStore) : ({} as any);
+// Note: zustand-selector-hooks is not installed, using selector functions instead
 
 // Export selectors with memoization
 export const selectors = {

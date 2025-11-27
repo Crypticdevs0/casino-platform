@@ -34,13 +34,6 @@ interface Game {
   rating: number;
 }
 
-interface Category {
-  id: string;
-  name: string;
-  count: number;
-  icon?: React.ReactNode;
-}
-
 // Error Boundary Component
 function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
   return (
@@ -160,29 +153,7 @@ function GameLobbyContent() {
   const [activeJackpot, setActiveJackpot] = useState<JackpotType>('mega');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'az' | 'rtp'>('popular');
-  
-  // Generate categories from games data
-  const categories = useMemo<Category[]>(() => {
-    const categoryMap = new Map<string, number>();
-    
-    // Count games in each category
-    games.forEach(game => {
-      game.category.forEach(cat => {
-        categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
-      });
-    });
-    
-    // Convert to array of categories
-    return [
-      { id: 'all', name: 'All Games', count: games.length },
-      ...Array.from(categoryMap.entries()).map(([id, count]) => ({
-        id: id.toLowerCase(),
-        name: id,
-        count,
-      })),
-    ];
-  }, [games]);
-  
+
   // Simulate loading games with progress
   useEffect(() => {
     let progress = 0;
@@ -488,10 +459,10 @@ function GameLobbyContent() {
               
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  <select 
+                  <select
                     className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pr-8 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-amber-500"
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'az' | 'newest' | 'popular' | 'rtp')}
+                    onChange={(e) => setSortBy(e.target.value as 'popular' | 'newest' | 'az' | 'rtp')}
                   >
                     <option value="popular">Most Popular</option>
                     <option value="newest">Newest First</option>

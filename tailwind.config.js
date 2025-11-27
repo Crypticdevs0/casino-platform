@@ -13,11 +13,10 @@ module.exports = {
     },
     extend: {
       colors: {
-        success: 'var(--success)',
-        warning: 'var(--warning)',
-        danger: 'var(--destructive)',
-        info: 'var(--info)',
-      }
+        success: 'rgb(34 197 94 / <alpha-value>)',
+        warning: 'rgb(234 179 8 / <alpha-value>)',
+        danger: 'rgb(239 68 68 / <alpha-value>)',
+      },
     },
   },
   plugins: [],
