@@ -362,7 +362,7 @@ export const useGameStore = create<GameState>()(
 );
 
 // Create typed hooks for better TypeScript support
-export const useGameStoreSelectors = createSelectorHooks(useGameStore);
+// Note: zustand-selector-hooks is not installed, using selector functions instead
 
 // Export selectors with memoization
 export const selectors = {
