@@ -157,7 +157,7 @@ const initialState = {
 };
 
 // Create the store with middleware
-export const useGameStore = create<GameState>()(
+export const useGameStore = (create as any)<GameState>()(
   devtools(
     persist(
       immer((set, get) => ({
@@ -194,8 +194,7 @@ export const useGameStore = create<GameState>()(
           if (!currentGame) return;
 
           // Process the game result with enhanced handling
-          const { id, timestamp, ...resultData } = result;
-          processGameResult(resultData);
+          processGameResult(result as any);
         },
 
         processGameResult: async (result: Omit<GameResult, 'timestamp' | 'id'>) => {

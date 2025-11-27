@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 // Lazy load heavy components
 const GameCard = lazy(() => import('@/components/casino/GameCard').then(m => {
   // Support both default export and named export
-  return { default: m.GameCard ?? m.default ?? m };
+  return { default: (m as any).GameCard ?? (m as any).default ?? m } as any;
 }));
 
 // Type definitions

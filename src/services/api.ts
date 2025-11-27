@@ -22,9 +22,9 @@ try {
       request: () => Promise.resolve({ data: {} }),
     }),
   };
-  AxiosInstance = any;
-  AxiosRequestConfig = any;
-  AxiosResponse = any;
+  AxiosInstance = undefined;
+  AxiosRequestConfig = undefined;
+  AxiosResponse = undefined;
 }
 
 import { toast } from 'sonner';
@@ -46,15 +46,18 @@ export interface ApiResponse<T = any> {
   };
 }
 
-export interface ApiConfig extends AxiosRequestConfig {
+export interface ApiConfig {
   skipAuth?: boolean;
   skipErrorToast?: boolean;
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD';
   url?: string;
+  data?: any;
+  params?: any;
+  headers?: Record<string, any>;
 }
 
 class ApiService {
-  private api: AxiosInstance;
+  private api: any;
   private static instance: ApiService;
 
   private constructor() {
@@ -84,7 +87,7 @@ class ApiService {
 
     // Response interceptor
     this.api.interceptors.response.use(
-      (response: AxiosResponse<ApiResponse>) => {
+      (response: any) => {
         // Handle successful responses
         if (response.data && !response.data.success) {
           return Promise.reject(response.data.error);
