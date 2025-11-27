@@ -13,7 +13,7 @@ const themeKeyToCssVar: Record<string, string> = {
   card: 'card',
 };
 
-export function ThemeProvider({ children }: { children: React.Node }) {
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const themeContext = useContext(ThemeContext);
 
   useEffect(() => {

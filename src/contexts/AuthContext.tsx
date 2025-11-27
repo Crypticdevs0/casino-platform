@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '@/services/auth.service';
-import { useToast } from '@/components/ui/use-toast';
 
 type User = {
   id: string;
@@ -42,7 +41,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Check if user is logged in on mount
   useEffect(() => {
