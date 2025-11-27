@@ -10,7 +10,7 @@ interface JackpotCounterProps {
   digitClassName?: string;
   duration?: number;
   delay?: number;
-  ease?: string;
+  ease?: 'easeIn' | 'easeOut' | 'easeInOut' | 'circIn' | 'circOut' | 'circInOut' | 'backIn' | 'backOut' | 'backInOut' | 'anticipate';
 }
 
 export function JackpotCounter({
