@@ -1,8 +1,7 @@
 import { create } from 'zustand';
-import { devtools, persist, StateStorage } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
+import type { StateStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { createSelectorHooks } from 'zustand-selector-hooks';
-import { v4 as uuidv4 } from 'uuid';
 
 // Types
 export type GameType = 'slot' | 'blackjack' | 'roulette' | 'poker' | 'baccarat';
