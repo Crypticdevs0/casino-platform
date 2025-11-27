@@ -34,7 +34,14 @@ type GameHistoryItem = {
   timestamp: number;
   bet: number;
   win: number;
-  result: Omit<GameResult, 'timestamp' | 'id'>;
+  winAmount: number;
+  multiplier?: number;
+  winningLines?: number[];
+  bonusRounds?: number;
+  freeSpins?: number;
+  isJackpot?: boolean;
+  symbols?: string[];
+  gameState?: Record<string, unknown>;
 };
 
 type GameStatistics = {
