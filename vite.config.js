@@ -54,14 +54,8 @@ export default defineConfig(({ mode }) => {
       }),
       tailwindcss(),
       basicSsl(),
-      createHtmlPlugin({
+      isProduction && createHtmlPlugin({
         minify: true,
-        inject: {
-          data: {
-            title: env.VITE_APP_TITLE || 'Super Casino Platform',
-            description: 'Experience the ultimate online casino gaming platform',
-          },
-        },
       }),
       isProduction && productionPlugins,
     ].filter(Boolean),
