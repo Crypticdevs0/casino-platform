@@ -49,6 +49,15 @@ const RouletteGame = lazy(() => import('@/components/RouletteGame').then(m => ({
 
 function App() {
 	const { currentUser: btcUser, btcAddress, isConnected: btcConnected, isConnecting: btcConnecting, connectionError: btcError, connectWallet: connectBTC, disconnectWallet: disconnectBTC, walletStatus } = useBTCWallet();
+
+	// Use BTC user context
+	const currentUser = btcUser;
+	const isConnected = btcConnected;
+	const isConnecting = btcConnecting;
+	const connectionError = btcError;
+	const connectWallet = connectBTC;
+	const disconnectWallet = disconnectBTC;
+
 	const [selectedCurrency, setSelectedCurrency] = useState('BTC');
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [rgModalOpen, setRgModalOpen] = useState(false);
