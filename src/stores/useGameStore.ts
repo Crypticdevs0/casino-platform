@@ -158,7 +158,7 @@ const initialState = {
 };
 
 // Create the store with middleware
-export const useGameStore = (create as any)<GameState>()(
+export const useGameStore = create<GameState>()(
   devtools(
     persist(
       immer((set, get) => ({
