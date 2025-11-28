@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import type { StateStorage } from 'zustand/middleware';
+import type { StateStorage, PersistStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import type { Immer } from 'zustand/middleware/immer';
 
 // Simple UUID generator using crypto API
 const generateId = (): string => {
