@@ -38,10 +38,17 @@ const router = createRouter({
 	basepath: import.meta.env.TENANT_ID ? `/${import.meta.env.TENANT_ID}` : "/",
 });
 
-// Register the router instance for type safety
+// Declare the router context type for TanStack Router
 declare module "@tanstack/react-router" {
 	interface Register {
 		router: typeof router;
+	}
+}
+
+// Declare the context type
+declare global {
+	interface RouterContext {
+		queryClient: QueryClient;
 	}
 }
 
