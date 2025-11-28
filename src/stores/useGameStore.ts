@@ -160,7 +160,7 @@ const initialState = {
 export const useGameStore = create<GameState>()(
   devtools(
     persist(
-      immer((set, get) => ({} as any || {
+      immer((set, get) => ({
         ...initialState,
 
         startGame: (game) => {
