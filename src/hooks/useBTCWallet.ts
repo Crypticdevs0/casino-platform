@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { btcService, type BTCTransaction } from '@/services/btc.service';
+import { btcService, BTCService, type BTCTransaction } from '@/services/btc.service';
 import { authService } from '@/services/auth.service';
 import { gameService } from '@/services/game.service';
 import type { UserModel } from '@/components/data/orm/orm_user';
