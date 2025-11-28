@@ -50,7 +50,9 @@ export function DepositDialog({
             Deposit {currency}
           </DialogTitle>
           <DialogDescription>
-            Add funds to your wallet. This is a demo - funds are added instantly.
+            {currency === 'BTC'
+              ? 'Send Bitcoin to your deposit address. Requires 3 confirmations (~30 minutes).'
+              : 'Add funds to your wallet.'}
           </DialogDescription>
         </DialogHeader>
 
