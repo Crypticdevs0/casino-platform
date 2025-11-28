@@ -19,9 +19,10 @@ import {
 interface SettingsPortalProps {
 	kycLevel?: number;
 	isBanned?: boolean;
+	currency?: string;
 }
 
-export function SettingsPortal({ kycLevel, isBanned }: SettingsPortalProps) {
+export function SettingsPortal({ kycLevel, isBanned, currency = 'BTC' }: SettingsPortalProps) {
 
   const handleSaveChanges = () => {
     alert('Your limits have been saved. Please note that any changes that make your limits more restrictive will be applied immediately, while any changes that make them less restrictive will take 24 hours to come into effect.');
@@ -57,11 +58,11 @@ export function SettingsPortal({ kycLevel, isBanned }: SettingsPortalProps) {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <Label htmlFor="dailyDeposit">Daily Deposit Limit (ETH)</Label>
+                                <Label htmlFor="dailyDeposit">Daily Deposit Limit ({currency})</Label>
                                 <Input id="dailyDeposit" type="number" placeholder="No limit" />
                             </div>
                             <div>
-                                <Label htmlFor="weeklyLoss">Weekly Loss Limit (ETH)</Label>
+                                <Label htmlFor="weeklyLoss">Weekly Loss Limit ({currency})</Label>
                                 <Input id="weeklyLoss" type="number" placeholder="No limit" />
                             </div>
                              <div>

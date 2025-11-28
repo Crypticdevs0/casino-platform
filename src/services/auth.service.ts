@@ -71,6 +71,64 @@ class AuthService {
   }
 
   /**
+   * Connect Bitcoin wallet and authenticate user
+   * Uses BTC mainnet deposit address
+   */
+  async connectBTCWallet(btcAddress: string): Promise<AuthenticatedUser> {
+    // Validate BTC address format
+    const { btcService } = await import('@/services/btc.service');
+    if (!btcService.constructor.validateAddress(btcAddress)) {
+      throw new Error('Invalid BTC address format');
+    }
+
+    // For BTC, we use the deposit address as the wallet identifier
+    // This allows multiple users to fund the same casino address
+    const existingUsers = await this.userOrm.getUserByWalletAddress(btcAddress.toLowerCase());
+
+    // For BTC flow, each connection gets a fresh user (since the address is shared)
+    // Or we can link by IP/browser fingerprint in production
+    // For now, create a new user or get existing
+    if (existingUsers.length > 0) {
+      const user = existingUsers[0];
+      const updatedUser = await this.userOrm.setUserByWalletAddress(btcAddress.toLowerCase(), {
+        ...user,
+        last_login_at: Math.floor(Date.now() / 1000).toString(),
+      });
+
+      return {
+        user: updatedUser[0],
+        isAuthenticated: true,
+      };
+    }
+
+    const newUsers = await this.userOrm.insertUser([
+      {
+        wallet_address: btcAddress.toLowerCase(),
+        kyc_level: 0,
+        is_banned: false,
+        last_login_at: Math.floor(Date.now() / 1000).toString(),
+      } as UserModel,
+    ]);
+
+    const newUser = newUsers[0];
+
+    // Initialize wallet for BTC only
+    await this.walletOrm.insertWallet([
+      {
+        user_id: newUser.id,
+        currency: 'BTC',
+        available_balance: '0',
+        locked_balance: '0',
+      } as any,
+    ]);
+
+    return {
+      user: newUser,
+      isAuthenticated: true,
+    };
+  }
+
+  /**
    * Disconnect wallet
    */
   async disconnectWallet(): Promise<void> {

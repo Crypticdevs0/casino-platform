@@ -27,7 +27,7 @@ export function DepositDialog({
   onDeposit,
   isDepositing,
 }: DepositDialogProps) {
-  const [amount, setAmount] = useState('1.0');
+  const [amount, setAmount] = useState('0.001');
 
   const handleDeposit = () => {
     if (parseFloat(amount) <= 0) {
@@ -35,10 +35,11 @@ export function DepositDialog({
       return;
     }
     onDeposit(amount);
-    setAmount('1.0');
+    setAmount('0.001');
   };
 
-  const presetAmounts = ['0.1', '0.5', '1.0', '5.0'];
+  // BTC presets are in smaller amounts (0.001 BTC = ~$30 at current prices)
+  const presetAmounts = currency === 'BTC' ? ['0.001', '0.005', '0.01', '0.05'] : ['0.1', '0.5', '1.0', '5.0'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,7 +50,9 @@ export function DepositDialog({
             Deposit {currency}
           </DialogTitle>
           <DialogDescription>
-            Add funds to your wallet. This is a demo - funds are added instantly.
+            {currency === 'BTC'
+              ? 'Send Bitcoin to your deposit address. Requires 3 confirmations (~30 minutes).'
+              : 'Add funds to your wallet.'}
           </DialogDescription>
         </DialogHeader>
 

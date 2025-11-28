@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ThemeContext } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { WalletConnect } from '@/components/WalletConnect';
+import { BTCWalletConnect } from '@/components/BTCWalletConnect';
 import { BalanceDisplay } from '@/components/BalanceDisplay';
 import { GameHistory } from '@/components/GameHistory';
 import { GameStats } from '@/components/GameStats';
@@ -31,6 +31,7 @@ import { KycVerificationDialog } from '@/components/KycVerificationDialog';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { Button } from '@/components/ui/button';
 import { useWallet, useWalletBalances, useUserWallets, useDeposit } from '@/hooks/useWallet';
+import { useBTCWallet } from '@/hooks/useBTCWallet';
 import { usePlaceBet, useGameSessions, useInitializeSeeds, useSessionForVerification, useUserTransactions } from '@/hooks/useGame';
 import { createConfetti } from '@/lib/confetti';
 import { Dice1, History, Shield, BarChart3, Zap, Cherry, Flame, Circle as CircleIcon, Target, Trophy, Award, Star } from 'lucide-react';
@@ -47,8 +48,17 @@ const PlinkoGame = lazy(() => import('@/components/PlinkoGame').then(m => ({ def
 const RouletteGame = lazy(() => import('@/components/RouletteGame').then(m => ({ default: m.RouletteGame })));
 
 function App() {
-	const { connectedAddress, currentUser, isConnected, isConnecting, connectionError, connectWallet, disconnectWallet, setUserKycLevel } = useWallet();
-	const [selectedCurrency, setSelectedCurrency] = useState('ETH');
+	const { currentUser: btcUser, btcAddress, isConnected: btcConnected, isConnecting: btcConnecting, connectionError: btcError, connectWallet: connectBTC, disconnectWallet: disconnectBTC, walletStatus } = useBTCWallet();
+
+	// Use BTC user context
+	const currentUser = btcUser;
+	const isConnected = btcConnected;
+	const isConnecting = btcConnecting;
+	const connectionError = btcError;
+	const connectWallet = connectBTC;
+	const disconnectWallet = disconnectBTC;
+
+	const [selectedCurrency, setSelectedCurrency] = useState('BTC');
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [rgModalOpen, setRgModalOpen] = useState(false);
 	const [arcadePassModalOpen, setArcadePassModalOpen] = useState(false);
@@ -89,7 +99,7 @@ function App() {
 
 	// Queries
 	const { data: wallets = [] } = useUserWallets(currentUser?.id || null);
-	const { data: currentWallet } = useWalletBalances(currentUser?.id || null, selectedCurrency);
+	const { data: currentWallet } = useWalletBalances(currentUser?.id || null, 'BTC');
 	const { data: gameSessions = [] } = useGameSessions(currentUser?.id || null);
 	const { data: transactions = [] } = useUserTransactions(currentUser?.id || null, 200);
 	const { data: verificationData } = useSessionForVerification(selectedSessionId);
@@ -332,20 +342,21 @@ function App() {
 					</div>
 				</motion.div>
 
-				{/* Wallet Connection */}
+				{/* Bitcoin Wallet Connection */}
 				<motion.div
 					className="mb-6"
 					initial={{ opacity: 0, scale: 0.95 }}
 					animate={{ opacity: 1, scale: 1 }}
 					transition={{ duration: 0.4, delay: 0.1 }}
 				>
-					<WalletConnect
+					<BTCWalletConnect
 						isConnected={isConnected}
-						connectedAddress={connectedAddress}
+						btcAddress={btcAddress}
 						onConnect={connectWallet}
 						onDisconnect={disconnectWallet}
 						isConnecting={isConnecting}
 						error={connectionError}
+						walletStatus={walletStatus}
 					/>
 				</motion.div>
 
@@ -619,6 +630,7 @@ function App() {
 					isOpen={rgModalOpen}
 					onClose={() => setRgModalOpen(false)}
 					kycLevel={currentUser?.kyc_level}
+					currency={selectedCurrency}
 				/>
 
 				<ArcadePassModal
@@ -649,7 +661,7 @@ function App() {
 				/>
 
 				<OnboardingTutorial />
-				<SettingsPortal />
+				<SettingsPortal kycLevel={currentUser?.kyc_level} isBanned={currentUser?.is_banned} currency={selectedCurrency} />
 			</div>
 		</div>
 	);
