@@ -7,6 +7,8 @@ import svgr from "vite-plugin-svgr";
 import { creaoPlugins } from "./config/vite/creao-plugin.mjs";
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { createHtmlPlugin } from 'vite-plugin-html';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 // Production optimizations
