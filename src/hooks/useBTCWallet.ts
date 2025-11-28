@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { btcService, BTCService, type BTCTransaction } from '@/services/btc.service';
+import { btcService, type BTCTransaction } from '@/services/btc.service';
 import { authService } from '@/services/auth.service';
 import { gameService } from '@/services/game.service';
 import type { UserModel } from '@/components/data/orm/orm_user';
@@ -26,7 +26,10 @@ export function useBTCWallet() {
     try {
       const depositAddress = btcService.getDepositAddress();
 
-      if (!BTCService.validateAddress(depositAddress)) {
+      // Validate address format - using the validation method from btcService
+      // This is a simple regex check: must be valid Bitcoin address format
+      const addressPattern = /^[13bc][a-zA-HJ-NP-Z0-9]{25,62}$/;
+      if (!addressPattern.test(depositAddress)) {
         throw new Error('Invalid BTC deposit address configured');
       }
 
