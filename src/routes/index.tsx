@@ -88,9 +88,17 @@ function App() {
 		}
 	}, [activeTab, themeContext]);
 
+	// Use BTC user context
+	const currentUser = btcUser;
+	const isConnected = btcConnected;
+	const isConnecting = btcConnecting;
+	const connectionError = btcError;
+	const connectWallet = connectBTC;
+	const disconnectWallet = disconnectBTC;
+
 	// Queries
 	const { data: wallets = [] } = useUserWallets(currentUser?.id || null);
-	const { data: currentWallet } = useWalletBalances(currentUser?.id || null, selectedCurrency);
+	const { data: currentWallet } = useWalletBalances(currentUser?.id || null, 'BTC');
 	const { data: gameSessions = [] } = useGameSessions(currentUser?.id || null);
 	const { data: transactions = [] } = useUserTransactions(currentUser?.id || null, 200);
 	const { data: verificationData } = useSessionForVerification(selectedSessionId);
