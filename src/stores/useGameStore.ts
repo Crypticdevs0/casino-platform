@@ -157,10 +157,17 @@ const initialState = {
 };
 
 // Create the store with middleware
+type SetState = (
+  partial: GameState | Partial<GameState> | ((state: GameState) => GameState | Partial<GameState>),
+  replace?: boolean | undefined
+) => void;
+
+type GetState = () => GameState;
+
 export const useGameStore = create<GameState>()(
   devtools(
     persist(
-      immer((set, get) => ({
+      immer((set: SetState, get: GetState) => ({
         ...initialState,
 
         startGame: (game) => {
