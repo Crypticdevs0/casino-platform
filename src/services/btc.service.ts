@@ -1,4 +1,5 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 
 const MEMPOOL_API_URL = 'https://mempool.space/api';
 const CONFIRMATIONS_REQUIRED = 3;
@@ -220,4 +221,5 @@ class BTCService {
   }
 }
 
+// Only export instance, not the class
 export const btcService = new BTCService();

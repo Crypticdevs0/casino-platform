@@ -157,7 +157,7 @@ const initialState = {
 };
 
 // Create the store with middleware
-export const useGameStore = (create as any)<GameState>()(
+export const useGameStore = create<GameState>()(
   devtools(
     persist(
       immer((set, get) => ({
@@ -175,7 +175,7 @@ export const useGameStore = (create as any)<GameState>()(
             set({ sessionStart: Date.now() });
           }
 
-          set((state) => {
+          set((state: any) => {
             state.isPlaying = true;
             state.currentGame = game;
             state.balance -= betAmount;
@@ -220,7 +220,7 @@ export const useGameStore = (create as any)<GameState>()(
 
           const finalWinAmount = gameResult.winAmount * bonusMultiplier;
 
-          set((state) => {
+          set((state: any) => {
             state.isProcessingResult = true;
             state.lastWin = finalWinAmount;
             state.balance += finalWinAmount;
