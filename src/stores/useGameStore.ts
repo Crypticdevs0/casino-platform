@@ -175,7 +175,7 @@ export const useGameStore = create<GameState>()(
             set({ sessionStart: Date.now() });
           }
 
-          set((state) => {
+          set((state: any) => {
             state.isPlaying = true;
             state.currentGame = game;
             state.balance -= betAmount;
@@ -220,7 +220,7 @@ export const useGameStore = create<GameState>()(
 
           const finalWinAmount = gameResult.winAmount * bonusMultiplier;
 
-          set((state) => {
+          set((state: any) => {
             state.isProcessingResult = true;
             state.lastWin = finalWinAmount;
             state.balance += finalWinAmount;
