@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Bitcoin, Info } from 'lucide-react';
 import { displaySuccess } from '@/utils/errorHandler';
 
 interface ResponsibleGamingModalProps {
@@ -21,10 +21,17 @@ interface ResponsibleGamingModalProps {
 }
 
 export function ResponsibleGamingModal({ isOpen, onClose, kycLevel, currency = 'BTC' }: ResponsibleGamingModalProps) {
-  // In a real app, these would be fetched and updated via an API
+  const isBTC = currency === 'BTC';
+
   const handleSaveChanges = () => {
     displaySuccess('Limits Saved', 'Your responsible gaming limits have been updated.');
     onClose();
+  };
+
+  const formatSatoshis = (btc: number): string => {
+    if (!isBTC || !btc) return '';
+    const satoshis = Math.round(btc * 100000000);
+    return ` (${satoshis.toLocaleString()} sats)`;
   };
 
   return (
