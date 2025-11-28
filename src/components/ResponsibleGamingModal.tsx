@@ -67,35 +67,95 @@ export function ResponsibleGamingModal({ isOpen, onClose, kycLevel, currency = '
             <TabsContent value="deposit">
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">Set a limit on how much you can deposit in a given period.</p>
+                {isBTC && (
+                  <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 flex gap-2">
+                    <Info className="w-4 h-4 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-orange-700 dark:text-orange-300">Bitcoin values are in BTC. For reference: 1 BTC = 100,000,000 satoshis. You can also think in smaller units like mBTC (millibitcoin) where 0.001 BTC = 1 mBTC.</p>
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="dailyDeposit">Daily Limit ({currency})</Label>
-                  <Input id="dailyDeposit" type="number" placeholder="No limit" />
+                  <Input
+                    id="dailyDeposit"
+                    type="number"
+                    step={isBTC ? "0.00000001" : "0.01"}
+                    placeholder={isBTC ? "e.g., 0.5" : "No limit"}
+                    min="0"
+                  />
+                  {isBTC && (
+                    <p className="text-xs text-muted-foreground mt-1">Accepts up to 8 decimal places for satoshi precision</p>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="weeklyDeposit">Weekly Limit ({currency})</Label>
-                  <Input id="weeklyDeposit" type="number" placeholder="No limit" />
+                  <Input
+                    id="weeklyDeposit"
+                    type="number"
+                    step={isBTC ? "0.00000001" : "0.01"}
+                    placeholder={isBTC ? "e.g., 2.0" : "No limit"}
+                    min="0"
+                  />
+                  {isBTC && (
+                    <p className="text-xs text-muted-foreground mt-1">Accepts up to 8 decimal places for satoshi precision</p>
+                  )}
                 </div>
               </div>
             </TabsContent>
             <TabsContent value="loss">
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">Set a limit on your net losses to prevent chasing.</p>
+                  {isBTC && (
+                    <div className="p-3 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 flex gap-2">
+                      <Info className="w-4 h-4 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-orange-700 dark:text-orange-300">Loss limits are tracked in BTC. Set conservative limits to protect yourself from losing more than you can afford.</p>
+                    </div>
+                  )}
                   <div>
                     <Label htmlFor="dailyLoss">Daily Loss Limit ({currency})</Label>
-                    <Input id="dailyLoss" type="number" placeholder="No limit" />
+                    <Input
+                      id="dailyLoss"
+                      type="number"
+                      step={isBTC ? "0.00000001" : "0.01"}
+                      placeholder={isBTC ? "e.g., 0.1" : "No limit"}
+                      min="0"
+                    />
+                    {isBTC && (
+                      <p className="text-xs text-muted-foreground mt-1">Accepts up to 8 decimal places for satoshi precision</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="weeklyLoss">Weekly Loss Limit ({currency})</Label>
-                    <Input id="weeklyLoss" type="number" placeholder="No limit" />
+                    <Input
+                      id="weeklyLoss"
+                      type="number"
+                      step={isBTC ? "0.00000001" : "0.01"}
+                      placeholder={isBTC ? "e.g., 0.5" : "No limit"}
+                      min="0"
+                    />
+                    {isBTC && (
+                      <p className="text-xs text-muted-foreground mt-1">Accepts up to 8 decimal places for satoshi precision</p>
+                    )}
                   </div>
                 </div>
             </TabsContent>
             <TabsContent value="session">
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">Get a reminder after a certain amount of time.</p>
+                  {isBTC && (
+                    <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex gap-2">
+                      <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-blue-700 dark:text-blue-300">Session reminders help you take breaks and maintain responsible gaming habits regardless of your currency choice.</p>
+                    </div>
+                  )}
                   <div>
                     <Label htmlFor="sessionTime">Session Time Reminder (minutes)</Label>
-                    <Input id="sessionTime" type="number" placeholder="No reminder" />
+                    <Input
+                      id="sessionTime"
+                      type="number"
+                      placeholder="No reminder"
+                      min="5"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Minimum 5 minutes. Leave empty to disable.</p>
                   </div>
                 </div>
             </TabsContent>
