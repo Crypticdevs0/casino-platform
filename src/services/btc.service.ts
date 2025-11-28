@@ -221,4 +221,5 @@ class BTCService {
   }
 }
 
+export { BTCService };
 export const btcService = new BTCService();
