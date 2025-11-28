@@ -58,11 +58,11 @@ export function SettingsPortal({ kycLevel, isBanned, currency = 'BTC' }: Setting
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <Label htmlFor="dailyDeposit">Daily Deposit Limit (ETH)</Label>
+                                <Label htmlFor="dailyDeposit">Daily Deposit Limit ({currency})</Label>
                                 <Input id="dailyDeposit" type="number" placeholder="No limit" />
                             </div>
                             <div>
-                                <Label htmlFor="weeklyLoss">Weekly Loss Limit (ETH)</Label>
+                                <Label htmlFor="weeklyLoss">Weekly Loss Limit ({currency})</Label>
                                 <Input id="weeklyLoss" type="number" placeholder="No limit" />
                             </div>
                              <div>
