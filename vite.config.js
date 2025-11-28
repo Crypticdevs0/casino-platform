@@ -68,8 +68,8 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@': resolve(__dirname, './src'),
-        '~': resolve(__dirname, './'),
+        '@': pathResolve(__dirname, './src'),
+        '~': pathResolve(__dirname, './'),
       },
     },
     server: {
