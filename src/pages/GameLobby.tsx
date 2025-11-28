@@ -217,6 +217,31 @@ function GameLobbyContent() {
     ));
   };
 
+  // Memoized categories extracted from games
+  const categories = useMemo(() => {
+    const categoryMap = new Map<string, number>();
+    categoryMap.set('all', games.length);
+
+    games.forEach(game => {
+      game.category.forEach(cat => {
+        const lowerCat = cat.toLowerCase();
+        categoryMap.set(lowerCat, (categoryMap.get(lowerCat) || 0) + 1);
+      });
+    });
+
+    return [
+      { id: 'all', name: 'All', count: games.length },
+      ...Array.from(categoryMap.entries())
+        .filter(([id]) => id !== 'all')
+        .map(([id, count]) => ({
+          id,
+          name: id.charAt(0).toUpperCase() + id.slice(1),
+          count,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    ];
+  }, [games]);
+
   // Memoized filtered and sorted games
   const filteredAndSortedGames = useMemo(() => {
     // Show loading state while filtering
@@ -224,8 +249,8 @@ function GameLobbyContent() {
 
     return games
       // Filter by category
-      .filter(game => 
-        selectedCategory === 'all' || 
+      .filter(game =>
+        selectedCategory === 'all' ||
         game.category.some(cat => cat.toLowerCase() === selectedCategory)
       )
       // Sort based on selected option
