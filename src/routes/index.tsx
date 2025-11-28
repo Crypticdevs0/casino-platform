@@ -630,6 +630,7 @@ function App() {
 					isOpen={rgModalOpen}
 					onClose={() => setRgModalOpen(false)}
 					kycLevel={currentUser?.kyc_level}
+					currency={selectedCurrency}
 				/>
 
 				<ArcadePassModal
