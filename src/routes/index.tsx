@@ -342,20 +342,21 @@ function App() {
 					</div>
 				</motion.div>
 
-				{/* Wallet Connection */}
+				{/* Bitcoin Wallet Connection */}
 				<motion.div
 					className="mb-6"
 					initial={{ opacity: 0, scale: 0.95 }}
 					animate={{ opacity: 1, scale: 1 }}
 					transition={{ duration: 0.4, delay: 0.1 }}
 				>
-					<WalletConnect
+					<BTCWalletConnect
 						isConnected={isConnected}
-						connectedAddress={connectedAddress}
+						btcAddress={btcAddress}
 						onConnect={connectWallet}
 						onDisconnect={disconnectWallet}
 						isConnecting={isConnecting}
 						error={connectionError}
+						walletStatus={walletStatus}
 					/>
 				</motion.div>
 
