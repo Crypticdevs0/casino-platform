@@ -221,5 +221,5 @@ class BTCService {
   }
 }
 
-export { BTCService };
+// Only export instance, not the class
 export const btcService = new BTCService();
