@@ -222,4 +222,18 @@ class BTCService {
 }
 
 // Only export instance, not the class
-export const btcService = new BTCService();
+let btcServiceInstance: BTCService | null = null;
+
+try {
+  btcServiceInstance = new BTCService();
+} catch (error) {
+  console.error('Failed to initialize BTCService:', error);
+  // Provide a fallback instance with minimal functionality
+  btcServiceInstance = {
+    getDepositAddress: () => {
+      throw new Error('BTC service not initialized');
+    },
+  } as any;
+}
+
+export const btcService = btcServiceInstance;
