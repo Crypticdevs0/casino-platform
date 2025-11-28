@@ -36,17 +36,23 @@ export function ResponsibleGamingModal({ isOpen, onClose, kycLevel, currency = '
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="text-primary" />
             Responsible Gaming
+            {isBTC && <Bitcoin className="w-5 h-5 text-orange-600 dark:text-orange-400" />}
           </DialogTitle>
           <DialogDescription>
             Manage your limits to ensure you play safely. Changes may take 24 hours to apply.
+            {isBTC && (
+              <span className="block text-[11px] text-muted-foreground mt-1">
+                Using Bitcoin for deposits. Limits are expressed in BTC (₿).
+              </span>
+            )}
             {typeof kycLevel === 'number' && (
               <span className="block text-[11px] text-muted-foreground mt-1">
-                Current KYC level: {kycLevel}  Certain limit changes may require higher verification in a real deployment.
+                Current KYC level: {kycLevel}. Certain limit changes may require higher verification in a real deployment.
               </span>
             )}
           </DialogDescription>
