@@ -661,7 +661,7 @@ function App() {
 				/>
 
 				<OnboardingTutorial />
-				<SettingsPortal />
+				<SettingsPortal kycLevel={currentUser?.kyc_level} isBanned={currentUser?.is_banned} currency={selectedCurrency} />
 			</div>
 		</div>
 	);
