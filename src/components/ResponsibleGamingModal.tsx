@@ -55,11 +55,11 @@ export function ResponsibleGamingModal({ isOpen, onClose, kycLevel, currency = '
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">Set a limit on how much you can deposit in a given period.</p>
                 <div>
-                  <Label htmlFor="dailyDeposit">Daily Limit (ETH)</Label>
+                  <Label htmlFor="dailyDeposit">Daily Limit ({currency})</Label>
                   <Input id="dailyDeposit" type="number" placeholder="No limit" />
                 </div>
                 <div>
-                  <Label htmlFor="weeklyDeposit">Weekly Limit (ETH)</Label>
+                  <Label htmlFor="weeklyDeposit">Weekly Limit ({currency})</Label>
                   <Input id="weeklyDeposit" type="number" placeholder="No limit" />
                 </div>
               </div>
@@ -68,11 +68,11 @@ export function ResponsibleGamingModal({ isOpen, onClose, kycLevel, currency = '
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">Set a limit on your net losses to prevent chasing.</p>
                   <div>
-                    <Label htmlFor="dailyLoss">Daily Loss Limit (ETH)</Label>
+                    <Label htmlFor="dailyLoss">Daily Loss Limit ({currency})</Label>
                     <Input id="dailyLoss" type="number" placeholder="No limit" />
                   </div>
                   <div>
-                    <Label htmlFor="weeklyLoss">Weekly Loss Limit (ETH)</Label>
+                    <Label htmlFor="weeklyLoss">Weekly Loss Limit ({currency})</Label>
                     <Input id="weeklyLoss" type="number" placeholder="No limit" />
                   </div>
                 </div>
