@@ -76,8 +76,8 @@ class AuthService {
    */
   async connectBTCWallet(btcAddress: string): Promise<AuthenticatedUser> {
     // Validate BTC address format
-    const { btcService } = await import('@/services/btc.service');
-    if (!btcService.validateAddress(btcAddress)) {
+    const { btcService, BTCService } = await import('@/services/btc.service');
+    if (!BTCService.validateAddress(btcAddress)) {
       throw new Error('Invalid BTC address format');
     }
 

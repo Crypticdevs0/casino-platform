@@ -26,7 +26,7 @@ export function useBTCWallet() {
     try {
       const depositAddress = btcService.getDepositAddress();
 
-      if (!btcService.validateAddress(depositAddress)) {
+      if (!BTCService.validateAddress(depositAddress)) {
         throw new Error('Invalid BTC deposit address configured');
       }
 
