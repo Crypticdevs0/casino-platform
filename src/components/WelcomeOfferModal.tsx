@@ -31,7 +31,7 @@ export function WelcomeOfferModal({ isOpen, onClose }: WelcomeOfferModalProps) {
           </div>
           <DialogTitle className="text-2xl font-bold">Welcome to the Casino!</DialogTitle>
           <DialogDescription>
-            As a new player, you're eligible for a 100% match bonus on your first deposit, up to 1 ETH.
+            As a new player, you're eligible for a 100% match bonus on your first deposit, up to 0.05 BTC.
           </DialogDescription>
         </DialogHeader>
         <p className="text-sm text-muted-foreground py-4">
