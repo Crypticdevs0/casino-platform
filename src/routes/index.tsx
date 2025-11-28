@@ -99,7 +99,7 @@ function App() {
 
 	// Queries
 	const { data: wallets = [] } = useUserWallets(currentUser?.id || null);
-	const { data: currentWallet } = useWalletBalances(currentUser?.id || null, selectedCurrency);
+	const { data: currentWallet } = useWalletBalances(currentUser?.id || null, 'BTC');
 	const { data: gameSessions = [] } = useGameSessions(currentUser?.id || null);
 	const { data: transactions = [] } = useUserTransactions(currentUser?.id || null, 200);
 	const { data: verificationData } = useSessionForVerification(selectedSessionId);
