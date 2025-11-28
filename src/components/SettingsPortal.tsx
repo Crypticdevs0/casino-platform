@@ -19,6 +19,7 @@ import {
 interface SettingsPortalProps {
 	kycLevel?: number;
 	isBanned?: boolean;
+	currency?: string;
 }
 
 export function SettingsPortal({ kycLevel, isBanned }: SettingsPortalProps) {
