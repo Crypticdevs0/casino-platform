@@ -195,7 +195,7 @@ class BTCService {
   /**
    * Validate BTC address format
    */
-  validateAddress(address: string): boolean {
+  static validateAddress(address: string): boolean {
     const patterns = {
       p2pkh: /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/, // Legacy (1...)
       p2sh: /^[3][a-km-zA-HJ-NP-Z1-9]{25,34}$/, // Pay-to-script-hash (3...)
