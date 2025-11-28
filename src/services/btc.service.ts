@@ -227,23 +227,5 @@ class BTCService {
   }
 }
 
-// Only export instance, not the class (lazy initialization)
-let _btcServiceInstance: BTCService | null = null;
-
-function getBTCService(): BTCService {
-  if (!_btcServiceInstance) {
-    _btcServiceInstance = new BTCService();
-  }
-  return _btcServiceInstance;
-}
-
-export const btcService = new Proxy({} as any, {
-  get(target, prop) {
-    const instance = getBTCService();
-    const value = (instance as any)[prop];
-    if (typeof value === 'function') {
-      return value.bind(instance);
-    }
-    return value;
-  },
-});
+// Only export instance, not the class
+export const btcService = new BTCService();
