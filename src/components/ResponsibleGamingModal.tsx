@@ -17,6 +17,7 @@ interface ResponsibleGamingModalProps {
   isOpen: boolean;
   onClose: () => void;
   kycLevel?: number;
+  currency?: string;
 }
 
 export function ResponsibleGamingModal({ isOpen, onClose, kycLevel }: ResponsibleGamingModalProps) {
