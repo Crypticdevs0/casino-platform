@@ -20,7 +20,7 @@ interface ResponsibleGamingModalProps {
   currency?: string;
 }
 
-export function ResponsibleGamingModal({ isOpen, onClose, kycLevel }: ResponsibleGamingModalProps) {
+export function ResponsibleGamingModal({ isOpen, onClose, kycLevel, currency = 'BTC' }: ResponsibleGamingModalProps) {
   // In a real app, these would be fetched and updated via an API
   const handleSaveChanges = () => {
     displaySuccess('Limits Saved', 'Your responsible gaming limits have been updated.');
