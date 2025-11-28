@@ -22,7 +22,7 @@ interface SettingsPortalProps {
 	currency?: string;
 }
 
-export function SettingsPortal({ kycLevel, isBanned }: SettingsPortalProps) {
+export function SettingsPortal({ kycLevel, isBanned, currency = 'BTC' }: SettingsPortalProps) {
 
   const handleSaveChanges = () => {
     alert('Your limits have been saved. Please note that any changes that make your limits more restrictive will be applied immediately, while any changes that make them less restrictive will take 24 hours to come into effect.');
