@@ -21,14 +21,20 @@ export interface BTCAddressInfo {
 }
 
 class BTCService {
-  private apiClient: AxiosInstance;
+  private apiClient: any;
   private mainnetAddress: string;
 
   constructor() {
-    this.apiClient = axios.create({
-      baseURL: MEMPOOL_API_URL,
-      timeout: 10000,
-    });
+    try {
+      this.apiClient = axios.create({
+        baseURL: MEMPOOL_API_URL,
+        timeout: 10000,
+      });
+    } catch (error) {
+      console.error('Failed to create axios instance:', error);
+      // Create a fallback that will error when used
+      this.apiClient = null;
+    }
     this.mainnetAddress = process.env.VITE_BTC_DEPOSIT_ADDRESS || '';
   }
 
