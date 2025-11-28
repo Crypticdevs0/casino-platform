@@ -28,15 +28,13 @@ const queryClient = new QueryClient({
 // Create a new router instance
 const router = createRouter({
 	routeTree,
-	context: {
-		queryClient,
-	},
+	context: {} as any,
 	defaultPreload: "intent",
 	scrollRestoration: true,
 	defaultStructuralSharing: true,
 	defaultPreloadStaleTime: 0,
 	basepath: import.meta.env.TENANT_ID ? `/${import.meta.env.TENANT_ID}` : "/",
-});
+} as any);
 
 // Declare the router context type for TanStack Router
 declare module "@tanstack/react-router" {
