@@ -48,8 +48,8 @@ const PlinkoGame = lazy(() => import('@/components/PlinkoGame').then(m => ({ def
 const RouletteGame = lazy(() => import('@/components/RouletteGame').then(m => ({ default: m.RouletteGame })));
 
 function App() {
-	const { connectedAddress, currentUser, isConnected, isConnecting, connectionError, connectWallet, disconnectWallet, setUserKycLevel } = useWallet();
-	const [selectedCurrency, setSelectedCurrency] = useState('ETH');
+	const { currentUser: btcUser, btcAddress, isConnected: btcConnected, isConnecting: btcConnecting, connectionError: btcError, connectWallet: connectBTC, disconnectWallet: disconnectBTC, walletStatus } = useBTCWallet();
+	const [selectedCurrency, setSelectedCurrency] = useState('BTC');
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [rgModalOpen, setRgModalOpen] = useState(false);
 	const [arcadePassModalOpen, setArcadePassModalOpen] = useState(false);
