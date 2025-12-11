@@ -3,6 +3,44 @@ import { reportToParentWindow } from "./internal/creao-shell";
 
 const API_BASE_PATH = import.meta.env.VITE_MCP_API_BASE_PATH;
 
+export class PlatformRequestError extends Error {
+        status: number;
+
+        url: string;
+
+        data: unknown;
+
+        headers: Record<string, string>;
+
+        constructor(message: string, options: {
+                status: number;
+                url: string;
+                data: unknown;
+                headers: Record<string, string>;
+        }) {
+                super(message);
+                this.name = "PlatformRequestError";
+                this.status = options.status;
+                this.url = options.url;
+                this.data = options.data;
+                this.headers = options.headers;
+        }
+}
+
+async function parseResponseBody(response: Response): Promise<unknown> {
+        const contentType = response.headers.get("content-type") || "";
+
+        try {
+                if (contentType.includes("application/json")) {
+                        return await response.json();
+                }
+
+                return await response.text();
+        } catch (error) {
+                return `Failed to parse response body: ${error instanceof Error ? error.message : String(error)}`;
+        }
+}
+
 /**
  * a simple wrapper for `fetch` with authentication token and error handling
  */
@@ -26,23 +64,48 @@ export async function platformRequest(
 		headers.set("Content-Type", "application/json");
 	}
 
-	const realUrl = typeof url === "string" ? new URL(url, API_BASE_PATH) : url;
-	const response = await fetch(realUrl, {
-		...options,
-		headers,
-	});
+        const realUrl = typeof url === "string" ? new URL(url, API_BASE_PATH) : url;
+        const response = await fetch(realUrl, {
+                ...options,
+                headers,
+        });
 
-	// TODO: check response status and throw error if not 200
-	reportToParentWindow({
-		type: "platform-request",
-		timestamp: new Date().toISOString(),
-		url: response.url,
-		method,
-		status: response.status,
-		responseHeaders: Object.fromEntries(response.headers.entries()),
-	})
+        const responseClone = response.clone();
+        const responseHeaders = Object.fromEntries(response.headers.entries());
 
-	return response;
+        if (!response.ok) {
+                const parsedBody = await parseResponseBody(responseClone);
+                reportToParentWindow({
+                        type: "platform-request",
+                        timestamp: new Date().toISOString(),
+                        url: response.url,
+                        method,
+                        status: response.status,
+                        responseHeaders,
+                        error: parsedBody,
+                });
+
+                throw new PlatformRequestError(
+                        `Platform request failed with status ${response.status}`,
+                        {
+                                status: response.status,
+                                url: response.url,
+                                data: parsedBody,
+                                headers: responseHeaders,
+                        },
+                );
+        }
+
+        reportToParentWindow({
+                type: "platform-request",
+                timestamp: new Date().toISOString(),
+                url: response.url,
+                method,
+                status: response.status,
+                responseHeaders,
+        })
+
+        return response;
 }
 
 /**

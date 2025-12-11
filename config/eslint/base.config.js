@@ -5,11 +5,19 @@
  * This reduces duplication and ensures consistency.
  */
 
-import js from '@eslint/js';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
+
+let recommendedRules = {};
+
+try {
+  const js = await import('@eslint/js');
+  recommendedRules = js.configs.recommended.rules;
+} catch (error) {
+  console.warn('Falling back to minimal ESLint rules: @eslint/js not available', error);
+}
 
 // Common globals used across configurations
 export const commonGlobals = {
@@ -107,7 +115,7 @@ export default [
     },
     rules: {
       // Base recommended rules
-      ...js.configs.recommended.rules,
+      ...recommendedRules,
       
       // React rules
       'react/jsx-uses-react': 'off',
